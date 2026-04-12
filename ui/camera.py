@@ -14,7 +14,7 @@ class Camera:
         
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 2:  # Middle mouse
+            if event.button == 1:  # Left mouse button
                 self.dragging = True
                 self.drag_start_x = event.pos[0]
                 self.drag_start_y = event.pos[1]
@@ -24,7 +24,7 @@ class Camera:
                 self.zoom = max(self.zoom / 1.1, 0.3)
                 
         elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 2:
+            if event.button == 1:  # Left mouse button
                 self.dragging = False
                 
         elif event.type == pygame.MOUSEMOTION:
