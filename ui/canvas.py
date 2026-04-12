@@ -1,8 +1,8 @@
 # ui/canvas.py
 import pygame
 import sys
-
 from settings import *
+from ui.camera import Camera
 
 class Canvas:
     def __init__(self):
@@ -11,7 +11,25 @@ class Canvas:
         pygame.display.set_caption(APPLICATION_TITLE)
         self.clock = pygame.time.Clock()
         self.running = True
+        self.camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         
+    def draw_grid(self):
+        # Calculate visible grid range
+        start_x = int(-self.camera.x / self.camera.zoom / GRID_SPACING) - 1
+        start_y = int(-self.camera.y / self.camera.zoom / GRID_SPACING) - 1
+        end_x = start_x + int(SCREEN_WIDTH / self.camera.zoom / GRID_SPACING) + 2
+        end_y = start_y + int(SCREEN_HEIGHT / self.camera.zoom / GRID_SPACING) + 2
+        
+        for i in range(start_x, end_x):
+            for j in range(start_y, end_y):
+                screen_x = i * GRID_SPACING * self.camera.zoom + self.camera.x
+                screen_y = j * GRID_SPACING * self.camera.zoom + self.camera.y
+                
+                # Only draw if on screen
+                if -GRID_SPACING <= screen_x <= SCREEN_WIDTH + GRID_SPACING and \
+                   -GRID_SPACING <= screen_y <= SCREEN_HEIGHT + GRID_SPACING:
+                    pygame.draw.circle(self.screen, GRID_COLOR, (int(screen_x), int(screen_y)), 2)
+    
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -19,9 +37,11 @@ class Canvas:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+            self.camera.handle_event(event)
                     
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
+        self.draw_grid()
         pygame.display.flip()
         
     def run(self):
