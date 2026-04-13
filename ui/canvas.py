@@ -11,6 +11,7 @@ from entities.email import Email
 from entities.phone import Phone
 from entities.organization import Organization
 from entities.document import Document
+from entities.database import Database
 
 class Canvas:
     def __init__(self):
@@ -106,7 +107,11 @@ class Canvas:
                         
                     elif self.pending_node_type == "Document":
                         new_node = Document(node_id, "Document", world_x, world_y)
+
+                    elif self.pending_node_type == "Database":
+                        new_node = Database(node_id, "Database", world_x, world_y)
                     
+
                     self.nodes.append(new_node)
                     
                     # Exit placement mode
