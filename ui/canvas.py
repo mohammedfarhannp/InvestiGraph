@@ -44,6 +44,9 @@ class Canvas:
                 clicked = self.ribbon.handle_click(event.pos)
                 if clicked:
                     print(f"Clicked: {clicked}")
+                    
+                if clicked and clicked not in ["dropdown_opened"]:
+                    print(f"Clicked: {clicked}")
                 
                 if not clicked:
                     self.selected_node = None
