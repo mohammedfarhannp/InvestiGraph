@@ -22,7 +22,10 @@ class Ribbon:
             "Person (Female)",
             "Organization",
             "Email",
-            "Phone"])
+            "Phone",
+            "Document",
+            "Database",
+            "Social Media"])
         
         self.active_dropdown = None
         self.font = pygame.font.SysFont("Arial", 14)
