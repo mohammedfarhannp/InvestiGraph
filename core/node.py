@@ -3,7 +3,7 @@ import pygame
 from settings import *
 
 class Node:
-    def __init__(self, node_id, node_type, label, x, y, color=None):
+    def __init__(self, node_id, node_type, label, x, y, color=None, icon_path=None):
         self.id = node_id
         self.node_type = node_type
         self.label = label
@@ -12,6 +12,14 @@ class Node:
         self.radius = DEFAULT_NODE_RADIUS
         self.color = color if color else (150, 150, 150)  # Default gray
         self.selected = False
+        
+        self.icon = None
+        if icon_path:
+            try:
+                self.icon = pygame.image.load(icon_path).convert_alpha()
+                self.icon = pygame.transform.scale(self.icon, (24, 24))
+            except:
+                print(f"Could not load icon: {icon_path}")
         
     def draw(self, screen, camera):
         # Convert world coordinates to screen
@@ -23,6 +31,10 @@ class Node:
         
         pygame.draw.circle(screen, self.color, (int(screen_x), int(screen_y)), self.radius)
         pygame.draw.circle(screen, border_color, (int(screen_x), int(screen_y)), self.radius, border_width)
+        
+        if self.icon:
+            icon_rect = self.icon.get_rect(center=(int(screen_x), int(screen_y)))
+            screen.blit(self.icon, icon_rect)
         
         # Draw label below the node
         font = pygame.font.SysFont("Arial", DEFAULT_FONT_SIZE)
