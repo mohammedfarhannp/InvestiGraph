@@ -13,13 +13,18 @@ class Canvas:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(APPLICATION_TITLE)
+        
         self.clock = pygame.time.Clock()
         self.running = True
         self.ribbon = Ribbon()
         self.camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         self.nodes = []
-        self.selected_node = None 
+        self.selected_node = None
+        
+        self.placement_mode = False
+        self.pending_node_type = None
+        
 
     def draw_grid(self):
         # Calculate visible grid range
@@ -53,6 +58,9 @@ class Canvas:
                     dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
                     if dropdown_result:
                         print(f"Selected: {dropdown_result}")
+                        self.placement_mode = True
+                        self.pending_node_type = dropdown_result
+                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
                         self.ribbon.active_dropdown = None
                         # Don't process further
                         continue
@@ -66,6 +74,26 @@ class Canvas:
                     pass  # Dropdown already opened
                 elif ribbon_result:
                     print(f"Clicked: {ribbon_result}")
+                    
+                
+                # Check if in placement mode
+                if self.placement_mode and not self.ribbon.active_dropdown:
+                    # Convert screen to world position
+                    world_x, world_y = self.camera.apply(event.pos)
+                    
+                    # Create node based on type
+                    node_id = f"{self.pending_node_type}_{len(self.nodes)}"
+                    # Add logic to create appropriate entity
+                    # For now, just create Person
+                    from entities.person import Person
+                    new_node = Person(node_id, "New Person", world_x, world_y, "male")
+                    self.nodes.append(new_node)
+                    
+                    # Exit placement mode
+                    self.placement_mode = False
+                    self.pending_node_type = None
+                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                    continue
             
             # Camera handles its own events
             self.camera.handle_event(event)
