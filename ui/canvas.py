@@ -76,6 +76,8 @@ class Canvas:
         self.draw_grid()
         for node in self.nodes:
             node.draw(self.screen, self.camera)
+            
+        self.ribbon.draw_dropdowns(self.screen)
         pygame.display.flip()
         
     def run(self):
