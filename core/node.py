@@ -9,7 +9,7 @@ class Node:
         self.label = label
         self.x = x
         self.y = y
-        self.radius = 30
+        self.radius = DEFAULT_NODE_RADIUS
         self.color = color if color else (150, 150, 150)  # Default gray
         self.selected = False
         
@@ -25,7 +25,7 @@ class Node:
         pygame.draw.circle(screen, border_color, (int(screen_x), int(screen_y)), self.radius, border_width)
         
         # Draw label below the node
-        font = pygame.font.SysFont("Arial", 12)
+        font = pygame.font.SysFont("Arial", DEFAULT_FONT_SIZE)
         text_surface = font.render(self.label, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(int(screen_x), int(screen_y + self.radius + 10)))
         screen.blit(text_surface, text_rect)
@@ -33,8 +33,7 @@ class Node:
     def get_rect(self, camera):
         # Return pygame.Rect for click detection (screen coordinates)
         screen_x, screen_y = camera.to_screen((self.x, self.y))
-        return pygame.Rect(screen_x - self.radius, screen_y - self.radius, 
-                          self.radius * 2, self.radius * 2)
+        return pygame.Rect(screen_x - self.radius, screen_y - self.radius, self.radius * 2, self.radius * 2)
     
     def contains_point(self, screen_pos, camera):
         # Check if a screen point is inside the node
