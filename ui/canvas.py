@@ -7,6 +7,7 @@ from ui.camera import Camera
 from ui.ui_elements import Ribbon
 
 from entities.person import Person
+from entities.email import Email
 
 class Canvas:
     def __init__(self):
@@ -89,7 +90,10 @@ class Canvas:
                     # Map dropdown text to entity
                     if self.pending_node_type in ("Person (Male)", "Person (Female)"):
                         gender = "male" if self.pending_node_type == "Person (Male)" else "female"
-                        new_node = Person(node_id, "New Person", world_x, world_y, gender)                    
+                        new_node = Person(node_id, "New Person", world_x, world_y, gender)
+                    
+                    elif self.pending_node_type == "Email":
+                        new_node = Email(node_id, "Email", world_x, world_y)
                     
                     self.nodes.append(new_node)
                     
