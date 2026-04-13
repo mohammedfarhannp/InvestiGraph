@@ -85,8 +85,11 @@ class Canvas:
                     node_id = f"{self.pending_node_type}_{len(self.nodes)}"
                     # Add logic to create appropriate entity
                     # For now, just create Person
-                    from entities.person import Person
-                    new_node = Person(node_id, "New Person", world_x, world_y, "male")
+                    # Map dropdown text to entity
+                    if self.pending_node_type in ("Person (Male)", "Person (Female)"):
+                        gender = "male" if self.pending_node_type == "Person (Male)" else "female"
+                        new_node = Person(node_id, "New Person", world_x, world_y, gender)                    
+                    
                     self.nodes.append(new_node)
                     
                     # Exit placement mode
