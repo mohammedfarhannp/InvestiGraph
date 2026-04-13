@@ -97,6 +97,14 @@ class Canvas:
                     self.pending_node_type = None
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                     continue
+                
+                self.selected_node = None
+                for node in reversed(self.nodes):
+                    if node.contains_point(event.pos, self.camera):
+                        self.selected_node = node
+                        node.selected = True
+                    else:
+                        node.selected = False
             
             # Camera handles its own events
             self.camera.handle_event(event)
