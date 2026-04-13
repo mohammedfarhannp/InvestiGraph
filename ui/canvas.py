@@ -12,6 +12,7 @@ from entities.phone import Phone
 from entities.organization import Organization
 from entities.document import Document
 from entities.database import Database
+from entities.social_media import SocialMedia
 
 class Canvas:
     def __init__(self):
@@ -110,6 +111,9 @@ class Canvas:
 
                     elif self.pending_node_type == "Database":
                         new_node = Database(node_id, "Database", world_x, world_y)
+                        
+                    elif self.pending_node_type == "Social Media":
+                        new_node = SocialMedia(node_id, "Social Media", world_x, world_y)
                     
 
                     self.nodes.append(new_node)
