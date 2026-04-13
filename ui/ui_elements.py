@@ -29,6 +29,13 @@ class Ribbon:
         
         self.active_dropdown = None
         self.font = pygame.font.SysFont("Arial", 14)
+        
+        self.trash_icon = None
+        try:
+            self.trash_icon = pygame.image.load("assets/icons/trash.png").convert_alpha()
+            self.trash_icon = pygame.transform.scale(self.trash_icon, (24, 24))
+        except:
+            print("Trash icon not found")
             
     def handle_click(self, pos):
         # Return button text if clicked, else None
@@ -53,6 +60,10 @@ class Ribbon:
                     self.add_node_dropdown.visible = True
                     return "dropdown_opened"
                 return btn["text"]
+        
+        if hasattr(self, 'trash_rect') and self.trash_rect.collidepoint(pos):
+            return "delete"
+        
         return None
     
     def draw(self, screen):
@@ -65,6 +76,12 @@ class Ribbon:
         for btn in self.buttons:
             text_surface = self.font.render(btn["text"], True, (220, 220, 220))
             screen.blit(text_surface, (btn["x"], 12))
+            
+        if self.trash_icon:
+            trash_x = SCREEN_WIDTH - 40
+            trash_y = 8
+            screen.blit(self.trash_icon, (trash_x, trash_y))
+            self.trash_rect = pygame.Rect(trash_x, trash_y, 24, 24)
 
     def draw_dropdowns(self, screen):
         # Draw dropdown on top
