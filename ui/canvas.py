@@ -6,6 +6,8 @@ from settings import *
 from ui.camera import Camera
 from ui.ui_elements import Ribbon
 
+from entities.person import Person
+
 class Canvas:
     def __init__(self):
         pygame.init()
@@ -15,7 +17,10 @@ class Canvas:
         self.running = True
         self.ribbon = Ribbon()
         self.camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
-    
+
+        self.nodes = []
+        self.selected_node = None 
+
     def draw_grid(self):
         # Calculate visible grid range
         start_x = int(-self.camera.x / self.camera.zoom / GRID_SPACING) - 1
@@ -39,7 +44,16 @@ class Canvas:
                 clicked = self.ribbon.handle_click(event.pos)
                 if clicked:
                     print(f"Clicked: {clicked}")
-                    
+                
+                if not clicked:
+                    self.selected_node = None
+                    for node in reversed(self.nodes):
+                        if node.contains_point(event.pos, self.camera):
+                            self.selected_node = node
+                            node.selected = True
+                        else:
+                            node.selected = False
+                                
             elif event.type == pygame.QUIT:
                 self.running = False
                 
@@ -53,6 +67,8 @@ class Canvas:
         self.screen.fill(BACKGROUND_COLOR)
         self.ribbon.draw(self.screen)
         self.draw_grid()
+        for node in self.nodes:
+            node.draw(self.screen, self.camera)
         pygame.display.flip()
         
     def run(self):
