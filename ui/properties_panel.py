@@ -17,6 +17,8 @@ class PropertiesPanel:
         self.active_field = None  # For text editing
         self.edit_text = ""
         
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        
     def set_node(self, node):
         self.current_node = node
         self.visible = node is not None
