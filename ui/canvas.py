@@ -141,22 +141,32 @@ class Canvas:
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                     continue
                 
-                self.selected_node = None
-                for node in reversed(self.nodes):
-                    if node.contains_point(event.pos, self.camera):
-                        self.selected_node = node
-                        node.selected = True
-                    else:
-                        node.selected = False
-
-                if self.selected_node:
-                    self.properties_panel.set_node(self.selected_node)
-                    self.dragging_node = True
-                    node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
-                    self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
+                click_on_panel = self.properties_panel.visible and self.properties_panel.rect.collidepoint(event.pos)
+                if click_on_panel:
+                    # Let panel handle click, don't deselect node
+                    panel_result = self.properties_panel.handle_click(event.pos)
+                    if panel_result == "edit_label":
+                        print("Edit label clicked")
+                    # Keep current selection, don't change anything
+                else:
+                    # Not clicking on panel - normal node selection/deselection
+                    self.selected_node = None
+                    for node in reversed(self.nodes):
+                        if node.contains_point(event.pos, self.camera):
+                            self.selected_node = node
+                            node.selected = True
+                        else:
+                            node.selected = False
                     
-                if not self.selected_node:
-                    self.properties_panel.set_node(None)
+                    # Update panel based on selection
+                    if self.selected_node:
+                        self.properties_panel.set_node(self.selected_node)
+                        # Start dragging
+                        self.dragging_node = True
+                        node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
+                        self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
+                    else:
+                        self.properties_panel.set_node(None)
 
             elif event.type == pygame.MOUSEMOTION:
                 if self.dragging_node and self.selected_node:
