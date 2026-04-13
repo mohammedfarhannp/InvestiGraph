@@ -9,6 +9,7 @@ from ui.ui_elements import Ribbon
 from entities.person import Person
 from entities.email import Email
 from entities.phone import Phone
+from entities.organization import Organization
 
 class Canvas:
     def __init__(self):
@@ -98,6 +99,9 @@ class Canvas:
                     
                     elif self.pending_node_type == "Phone":
                         new_node = Phone(node_id, "Phone", world_x, world_y)
+                        
+                    elif self.pending_node_type == "Organization":
+                        new_node = Organization(node_id, "Organization", world_x, world_y)
                     
                     self.nodes.append(new_node)
                     
