@@ -38,32 +38,36 @@ class Canvas:
                    self.ribbon.height <= screen_y <= SCREEN_HEIGHT + GRID_SPACING:
                     pygame.draw.circle(self.screen, GRID_COLOR, (int(screen_x), int(screen_y)), 2)
         
+    
     def handle_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                clicked = self.ribbon.handle_click(event.pos)
-                if clicked:
-                    print(f"Clicked: {clicked}")
-                    
-                if clicked and clicked not in ["dropdown_opened"]:
-                    print(f"Clicked: {clicked}")
-                
-                if not clicked:
-                    self.selected_node = None
-                    for node in reversed(self.nodes):
-                        if node.contains_point(event.pos, self.camera):
-                            self.selected_node = node
-                            node.selected = True
-                        else:
-                            node.selected = False
-                                
-            elif event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 self.running = False
-                
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                # Check dropdown first
+                dropdown_result = None
+                if self.ribbon.active_dropdown:
+                    dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
+                    if dropdown_result:
+                        print(f"Selected: {dropdown_result}")
+                        self.ribbon.active_dropdown = None
+                        # Don't process further
+                        continue
+                    else:
+                        # Clicked outside dropdown, close it
+                        self.ribbon.active_dropdown = None
+                
+                # Then check ribbon buttons
+                ribbon_result = self.ribbon.handle_click(event.pos)
+                if ribbon_result == "dropdown_opened":
+                    pass  # Dropdown already opened
+                elif ribbon_result:
+                    print(f"Clicked: {ribbon_result}")
             
+            # Camera handles its own events
             self.camera.handle_event(event)
                     
     def draw(self):
