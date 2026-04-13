@@ -20,23 +20,6 @@ class Ribbon:
         self.add_node_dropdown = Dropdown(70, 40, ["Person (Male)", "Person (Female)", "Organization", "Email", "Phone"])
         self.active_dropdown = None
         self.font = pygame.font.SysFont("Arial", 14)
-        
-    def draw(self, screen):
-        # Create solid opaque surface
-        ribbon_surface = pygame.Surface((SCREEN_WIDTH, self.height))
-        ribbon_surface.fill(self.color)
-        screen.blit(ribbon_surface, (0, 0))
-        
-        # Draw bottom border
-        pygame.draw.line(screen, self.border_color, (0, self.height), (SCREEN_WIDTH, self.height), 2)
-        
-        # Draw buttons
-        for btn in self.buttons:
-            text_surface = self.font.render(btn["text"], True, (220, 220, 220))
-            screen.blit(text_surface, (btn["x"], 12))
-        
-        if self.active_dropdown:
-            self.active_dropdown.draw(screen)
             
     def handle_click(self, pos):
         # Return button text if clicked, else None
@@ -62,6 +45,22 @@ class Ribbon:
                     return "dropdown_opened"
                 return btn["text"]
         return None
+    
+    def draw(self, screen):
+        # Draw ribbon background and buttons only
+        ribbon_surface = pygame.Surface((SCREEN_WIDTH, self.height))
+        ribbon_surface.fill(self.color)
+        screen.blit(ribbon_surface, (0, 0))
+        pygame.draw.line(screen, self.border_color, (0, self.height), (SCREEN_WIDTH, self.height), 2)
+        
+        for btn in self.buttons:
+            text_surface = self.font.render(btn["text"], True, (220, 220, 220))
+            screen.blit(text_surface, (btn["x"], 12))
+
+    def draw_dropdowns(self, screen):
+        # Draw dropdown on top
+        if self.active_dropdown:
+            self.active_dropdown.draw(screen)
 
 
 # Dropdown class
