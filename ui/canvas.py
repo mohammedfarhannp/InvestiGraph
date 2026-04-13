@@ -60,6 +60,10 @@ class Canvas:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+                elif event.key == pygame.K_DELETE and self.selected_node:
+                    self.nodes.remove(self.selected_node)
+                    self.selected_node = None
+                    
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 # Check dropdown first
                 dropdown_result = None
@@ -79,7 +83,13 @@ class Canvas:
                 
                 # Then check ribbon buttons
                 ribbon_result = self.ribbon.handle_click(event.pos)
-                if ribbon_result:
+                if ribbon_result == "delete":
+                    if self.selected_node:
+                        self.nodes.remove(self.selected_node)
+                        self.selected_node = None
+                    continue
+                
+                elif ribbon_result:
                     print(f"Clicked: {ribbon_result}")
                     
                 
