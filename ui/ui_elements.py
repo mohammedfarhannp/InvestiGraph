@@ -17,7 +17,13 @@ class Ribbon:
             {"x": 240, "text": "Help"},
         ]
 
-        self.add_node_dropdown = Dropdown(70, 40, ["Person (Male)", "Person (Female)", "Organization", "Email", "Phone"])
+        self.add_node_dropdown = Dropdown(70, 40, [
+            "Person (Male)",                                       
+            "Person (Female)",
+            "Organization",
+            "Email",
+            "Phone"])
+        
         self.active_dropdown = None
         self.font = pygame.font.SysFont("Arial", 14)
             
