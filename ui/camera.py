@@ -12,9 +12,9 @@ class Camera:
         self.drag_start_x = 0
         self.drag_start_y = 0
         
-    def handle_event(self, event):
+    def handle_event(self, event, allow_drag=True):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Left mouse button
+            if event.button == 1 and allow_drag:  # Left mouse button
                 self.dragging = True
                 self.drag_start_x = event.pos[0]
                 self.drag_start_y = event.pos[1]
