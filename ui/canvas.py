@@ -64,6 +64,7 @@ class Canvas:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
                 elif event.key == pygame.K_DELETE and self.selected_node:
+                    self.properties_panel.set_node(None)
                     self.nodes.remove(self.selected_node)
                     self.selected_node = None
                     
@@ -88,6 +89,7 @@ class Canvas:
                 ribbon_result = self.ribbon.handle_click(event.pos)
                 if ribbon_result == "delete":
                     if self.selected_node:
+                        self.properties_panel.set_node(None)
                         self.nodes.remove(self.selected_node)
                         self.selected_node = None
                     continue
