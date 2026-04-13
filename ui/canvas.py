@@ -25,6 +25,9 @@ class Canvas:
         self.placement_mode = False
         self.pending_node_type = None
         
+        self.dragging_node = False
+        self.drag_node_offset = (0, 0)
+        
 
     def draw_grid(self):
         # Calculate visible grid range
@@ -70,9 +73,7 @@ class Canvas:
                 
                 # Then check ribbon buttons
                 ribbon_result = self.ribbon.handle_click(event.pos)
-                if ribbon_result == "dropdown_opened":
-                    pass  # Dropdown already opened
-                elif ribbon_result:
+                if ribbon_result:
                     print(f"Clicked: {ribbon_result}")
                     
                 
@@ -105,9 +106,25 @@ class Canvas:
                         node.selected = True
                     else:
                         node.selected = False
+
+                if self.selected_node:
+                    self.dragging_node = True
+                    node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
+                    self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
+
+            elif event.type == pygame.MOUSEMOTION:
+                if self.dragging_node and self.selected_node:
+                    world_x, world_y = self.camera.apply((event.pos[0] - self.drag_node_offset[0], 
+                                                          event.pos[1] - self.drag_node_offset[1]))
+                    self.selected_node.x = world_x
+                    self.selected_node.y = world_y
+        
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.dragging_node = False
             
             # Camera handles its own events
-            self.camera.handle_event(event)
+            camera_should_drag = not self.selected_node
+            self.camera.handle_event(event, camera_should_drag)
                     
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
