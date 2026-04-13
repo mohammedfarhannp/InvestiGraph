@@ -5,6 +5,7 @@ import sys
 from settings import *
 from ui.camera import Camera
 from ui.ui_elements import Ribbon
+from ui.properties_panel import PropertiesPanel
 
 from entities.person import Person
 from entities.email import Email
@@ -33,6 +34,8 @@ class Canvas:
         
         self.dragging_node = False
         self.drag_node_offset = (0, 0)
+        
+        self.properties_panel = PropertiesPanel()
         
 
     def draw_grid(self):
@@ -89,6 +92,10 @@ class Canvas:
                         self.selected_node = None
                     continue
                 
+                panel_result = self.properties_panel.handle_click(event.pos)
+                if panel_result == "edit label":
+                    print("Edit label clicked")
+                
                 elif ribbon_result:
                     print(f"Clicked: {ribbon_result}")
                     
@@ -143,9 +150,13 @@ class Canvas:
                         node.selected = False
 
                 if self.selected_node:
+                    self.properties_panel.set_node(self.selected_node)
                     self.dragging_node = True
                     node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
                     self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
+                    
+                if not self.selected_node:
+                    self.properties_panel.set_node(None)
 
             elif event.type == pygame.MOUSEMOTION:
                 if self.dragging_node and self.selected_node:
@@ -165,6 +176,8 @@ class Canvas:
         self.screen.fill(BACKGROUND_COLOR)
         self.ribbon.draw(self.screen)
         self.draw_grid()
+        self.properties_panel.draw(self.screen)
+        
         for node in self.nodes:
             node.draw(self.screen, self.camera)
             
