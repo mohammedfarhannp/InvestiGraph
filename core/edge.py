@@ -16,17 +16,22 @@ class Edge:
         start = camera.to_screen((self.source.x, self.source.y))
         end = camera.to_screen((self.target.x, self.target.y))
         
-        # Draw line
+        # Calculate intersection points with node circles
+        start_intersect = self.circle_intersection(start, end, self.source.radius)
+        end_intersect = self.circle_intersection(end, start, self.target.radius)
+        
         color = (255, 255, 0) if self.selected else (200, 200, 200)
         width = 3 if self.selected else 2
-        pygame.draw.line(screen, color, start, end, width)
+        pygame.draw.line(screen, color, start_intersect, end_intersect, width)
         
-        # Draw arrowhead at target
-        self.draw_arrowhead(screen, start, end, color)
+        # Draw arrowhead at target (using intersected endpoint)
+        self.draw_arrowhead(screen, start_intersect, end_intersect, color)
         
-        # Draw label at midpoint
-        mid_x = (start[0] + end[0]) // 2
-        mid_y = (start[1] + end[1]) // 2
+        # Draw label at midpoint of intersected line
+        mid_x = (start_intersect[0] + end_intersect[0]) // 2
+        mid_y = (start_intersect[1] + end_intersect[1]) // 2
+        
+        
         font = pygame.font.SysFont("Arial", 12)
         label_surface = font.render(self.label, True, (220, 220, 220))
         label_rect = label_surface.get_rect(center=(mid_x, mid_y - 10))
@@ -52,6 +57,23 @@ class Edge:
         
         pygame.draw.polygon(screen, color, [end, left_point, right_point])
         
+    def circle_intersection(self, from_point, to_point, radius):
+        # Find point where line from from_point to to_point intersects circle at to_point
+        dx = to_point[0] - from_point[0]
+        dy = to_point[1] - from_point[1]
+        dist = math.hypot(dx, dy)
+        
+        if dist == 0:
+            return to_point
+        
+        # Move from to_point back along the line by radius distance
+        ratio = radius / dist
+        intersect_x = to_point[0] - dx * ratio
+        intersect_y = to_point[1] - dy * ratio
+        
+        return (intersect_x, intersect_y)
+
+
     def contains_point(self, screen_pos, camera, threshold=5):
         """Check if click is near the edge line"""
         start = camera.to_screen((self.source.x, self.source.y))
