@@ -75,6 +75,13 @@ class Canvas:
                     self.running = False
                 elif event.key == pygame.K_DELETE:
                     if self.selected_node:
+                        edges_to_remove = []
+                        for edge in self.edges:
+                            if edge.source == self.selected_node or edge.target == self.selected_node:
+                                edges_to_remove.append(edge)
+                        for edge in edges_to_remove:
+                            self.edges.remove(edge)
+                        
                         self.properties_panel.set_node(None)
                         self.nodes.remove(self.selected_node)
                         self.selected_node = None
@@ -105,9 +112,20 @@ class Canvas:
                 ribbon_result = self.ribbon.handle_click(event.pos)
                 if ribbon_result == "delete":
                     if self.selected_node:
+                        edges_to_remove = []
+                        for edge in self.edges:
+                            if edge.source == self.selected_node or edge.target == self.selected_node:
+                                edges_to_remove.append(edge)
+                        for edge in edges_to_remove:
+                            self.edges.remove(edge)
+                        
                         self.properties_panel.set_node(None)
                         self.nodes.remove(self.selected_node)
                         self.selected_node = None
+                        
+                    if self.selected_edge:
+                        self.edges.remove(self.selected_edge)
+                        self.selected_edge = None
                     continue
                 
                 panel_result = self.properties_panel.handle_click(event.pos)
