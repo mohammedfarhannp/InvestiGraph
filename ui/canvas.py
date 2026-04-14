@@ -67,6 +67,8 @@ class Canvas:
                     self.properties_panel.set_node(None)
                     self.nodes.remove(self.selected_node)
                     self.selected_node = None
+                else:
+                    self.properties_panel.handle_keyboard(event)
                     
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 # Check dropdown first
