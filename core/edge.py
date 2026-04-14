@@ -25,7 +25,7 @@ class Edge:
         pygame.draw.line(screen, color, start_intersect, end_intersect, width)
         
         # Draw arrowhead at target (using intersected endpoint)
-        self.draw_arrowhead(screen, start_intersect, end_intersect, color)
+        self.draw_arrowhead(screen, end_intersect, start_intersect, color)
         
         # Draw label at midpoint of intersected line
         mid_x = (start_intersect[0] + end_intersect[0]) // 2
