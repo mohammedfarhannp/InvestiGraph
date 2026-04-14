@@ -36,6 +36,7 @@ class Canvas:
         self.drag_node_offset = (0, 0)
         
         self.properties_panel = PropertiesPanel()
+        pygame.key.set_repeat(500, 50)  # First delay 500ms, then repeat every 50ms
         
 
     def draw_grid(self):
