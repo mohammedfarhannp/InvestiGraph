@@ -15,6 +15,8 @@ from entities.document import Document
 from entities.database import Database
 from entities.social_media import SocialMedia
 
+from core.edge import Edge
+
 class Canvas:
     def __init__(self):
         pygame.init()
@@ -37,6 +39,11 @@ class Canvas:
         
         self.properties_panel = PropertiesPanel()
         pygame.key.set_repeat(500, 50)  # First delay 500ms, then repeat every 50ms
+        
+        self.edges = []
+        self.creating_edge = False
+        self.edge_source_node = None
+        self.edge_temp_end = None
         
 
     def draw_grid(self):
@@ -64,10 +71,14 @@ class Canvas:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
-                elif event.key == pygame.K_DELETE and self.selected_node:
-                    self.properties_panel.set_node(None)
-                    self.nodes.remove(self.selected_node)
-                    self.selected_node = None
+                elif event.key == pygame.K_DELETE:
+                    if self.selected_node:
+                        self.properties_panel.set_node(None)
+                        self.nodes.remove(self.selected_node)
+                        self.selected_node = None
+                    elif self.selected_edge:
+                        self.edges.remove(self.selected_edge)
+                        self.selected_edge = None
                 else:
                     self.properties_panel.handle_keyboard(event)
                     
@@ -162,6 +173,15 @@ class Canvas:
                             node.selected = True
                         else:
                             node.selected = False
+                            
+                    if not self.selected_node:
+                        self.selected_edge = None
+                        for edge in reversed(self.edges):
+                            if edge.contains_point(event.pos, self.camera):
+                                self.selected_edge = edge
+                                edge.selected = True
+                            else:
+                                edge.selected = False
                     
                     # Update panel based on selection
                     if self.selected_node:
@@ -172,6 +192,35 @@ class Canvas:
                         self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
                     else:
                         self.properties_panel.set_node(None)
+                
+
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:  # Right click
+                # Check if clicking on node
+                clicked_node = None
+                for node in reversed(self.nodes):
+                    if node.contains_point(event.pos, self.camera):
+                        clicked_node = node
+                        break
+                
+                if self.creating_edge:
+                    # Currently creating an edge
+                    if clicked_node and clicked_node != self.edge_source_node:
+                        # Create edge
+                        edge_id = f"edge_{len(self.edges)}"
+                        new_edge = Edge(edge_id, self.edge_source_node, clicked_node, "Relationship")
+                        self.edges.append(new_edge)
+                    # Cancel edge creation mode
+                    self.creating_edge = False
+                    self.edge_source_node = None
+                    self.edge_temp_end = None
+                else:
+                    # Start creating edge if clicking on a node
+                    if clicked_node:
+                        self.creating_edge = True
+                        self.edge_source_node = clicked_node
+                        self.edge_temp_end = event.pos
+
 
             elif event.type == pygame.MOUSEMOTION:
                 if self.dragging_node and self.selected_node:
@@ -179,6 +228,9 @@ class Canvas:
                                                           event.pos[1] - self.drag_node_offset[1]))
                     self.selected_node.x = world_x
                     self.selected_node.y = world_y
+                
+                if self.creating_edge:
+                    self.edge_temp_end = event.pos
         
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.dragging_node = False
@@ -195,6 +247,16 @@ class Canvas:
         
         for node in self.nodes:
             node.draw(self.screen, self.camera)
+            
+        if self.creating_edge and self.edge_source_node and self.edge_temp_end:
+            start = self.camera.to_screen((self.edge_source_node.x, self.edge_source_node.y))
+            end = self.edge_temp_end
+            pygame.draw.line(self.screen, (200, 200, 200), start, end, 2)
+            # Draw temporary arrow at cursor
+            Edge.draw_arrowhead(None, self.screen, start, end, (200, 200, 200))
+
+        for edge in self.edges:
+            edge.draw(self.screen, self.camera)
             
         self.ribbon.draw_dropdowns(self.screen)
         pygame.display.flip()
