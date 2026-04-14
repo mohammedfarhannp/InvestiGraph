@@ -1,5 +1,6 @@
 # ui/canvas.py
 import pygame
+import math
 import sys
 
 from settings import *
@@ -259,10 +260,17 @@ class Canvas:
             
         if self.creating_edge and self.edge_source_node and self.edge_temp_end:
             start = self.camera.to_screen((self.edge_source_node.x, self.edge_source_node.y))
-            end = self.edge_temp_end
-            pygame.draw.line(self.screen, (200, 200, 200), start, end, 2)
-            # Draw temporary arrow at cursor
-            Edge.draw_arrowhead(None, self.screen, start, end, (200, 200, 200))
+            # Calculate edge of source node circle
+            dx = self.edge_temp_end[0] - start[0]
+            dy = self.edge_temp_end[1] - start[1]
+            dist = math.hypot(dx, dy)
+            if dist > self.edge_source_node.radius:
+                ratio = self.edge_source_node.radius / dist
+                start_intersect = (start[0] + dx * ratio, start[1] + dy * ratio)
+            else:
+                start_intersect = start
+            
+            pygame.draw.line(self.screen, (200, 200, 200), start_intersect, self.edge_temp_end, 2)
 
         for edge in self.edges:
             edge.draw(self.screen, self.camera)
