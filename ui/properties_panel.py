@@ -49,7 +49,7 @@ class PropertiesPanel:
                 y_offset += 32
             
             # Notes box
-            self.notes_box = TextBox(self.x + 15, self.y + 280, 250, 60, "", "Add notes...")
+            self.notes_box = TextBox(self.x + 15, self.y + 280, 250, 60, "", "Add notes...", multiline=True)
             self.notes_box.multiline = True  # Will handle later
     
     def draw(self, screen):
