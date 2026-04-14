@@ -30,6 +30,7 @@ class Canvas:
 
         self.nodes = []
         self.selected_node = None
+        self.selected_edge = None
         
         self.placement_mode = False
         self.pending_node_type = None
@@ -165,6 +166,10 @@ class Canvas:
                         print("Edit label clicked")
                     # Keep current selection, don't change anything
                 else:
+                    self.selected_edge = None
+                    for edge in self.edges:
+                        edge.selected = False
+                    
                     # Not clicking on panel - normal node selection/deselection
                     self.selected_node = None
                     for node in reversed(self.nodes):
@@ -190,6 +195,10 @@ class Canvas:
                         self.dragging_node = True
                         node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
                         self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
+                    
+                    elif self.selected_edge:
+                        self.properties_panel.set_node(None)
+                        
                     else:
                         self.properties_panel.set_node(None)
                 
