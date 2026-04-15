@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "camera": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1.0
+  },
+  "nodes": [
+    {
+      "id": "Person (Female)_0",
+      "type": "Person",
+      "label": "New Person",
+      "x": 126.0,
+      "y": 242.0,
+      "properties": {
+        "name": "New Person",
+        "gender": "female",
+        "email": null,
+        "phone": null
+      },
+      "notes": "",
+      "gender": "female"
+    },
+    {
+      "id": "Person (Male)_1",
+      "type": "Person",
+      "label": "New Person",
+      "x": 378.0,
+      "y": 209.0,
+      "properties": {
+        "name": "New Person",
+        "gender": "male",
+        "email": null,
+        "phone": null
+      },
+      "notes": "",
+      "gender": "male"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0",
+      "source_id": "Person (Female)_0",
+      "target_id": "Person (Male)_1",
+      "label": "Relationship"
+    }
+  ]
+}
