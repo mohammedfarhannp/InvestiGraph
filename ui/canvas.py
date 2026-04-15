@@ -231,6 +231,7 @@ class Canvas:
                     
                     # Update panel based on selection
                     if self.selected_node:
+                        self.properties_panel.set_edge(None)
                         self.properties_panel.set_node(self.selected_node)
                         # Start dragging
                         self.dragging_node = True
@@ -239,9 +240,11 @@ class Canvas:
                     
                     elif self.selected_edge:
                         self.properties_panel.set_node(None)
+                        self.properties_panel.set_edge(self.selected_edge)
                         
                     else:
                         self.properties_panel.set_node(None)
+                        self.properties_panel.set_edge(None)
                 
 
 
