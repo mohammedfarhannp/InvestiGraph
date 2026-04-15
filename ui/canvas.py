@@ -4,6 +4,7 @@ import math
 import sys
 
 from settings import *
+
 from ui.camera import Camera
 from ui.ui_elements import Ribbon
 from ui.properties_panel import PropertiesPanel
@@ -17,6 +18,9 @@ from entities.database import Database
 from entities.social_media import SocialMedia
 
 from core.edge import Edge
+
+from utils.file_io import save_graph, load_graph 
+
 
 class Canvas:
     def __init__(self):
@@ -98,12 +102,30 @@ class Canvas:
                     dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
                     if dropdown_result:
                         print(f"Selected: {dropdown_result}")
-                        self.placement_mode = True
-                        self.pending_node_type = dropdown_result
-                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
+    
+                        # Check if this is a node type (Add Node dropdown)
+                        node_types = ["Person (Male)", "Person (Female)", "Organization", 
+                                      "Email", "Phone", "Document", "Database", "Social Media"]
+                        
+                        if dropdown_result in node_types:
+                            self.placement_mode = True
+                            self.pending_node_type = dropdown_result
+                            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
+                        else:
+                            # This is from File dropdown (New, Save, Load)
+                            if dropdown_result == "Save":
+                                save_graph(self.nodes, self.edges, self.camera)
+                            elif dropdown_result == "Load":
+                                load_graph(self)
+                                self.properties_panel.set_node(None)
+                            elif dropdown_result == "New":
+                                # We'll implement later
+                                pass
+                        
                         self.ribbon.active_dropdown = None
-                        # Don't process further
                         continue
+                        
+                        
                     else:
                         # Clicked outside dropdown, close it
                         self.ribbon.active_dropdown = None
