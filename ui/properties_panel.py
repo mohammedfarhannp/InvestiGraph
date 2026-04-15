@@ -138,3 +138,7 @@ class PropertiesPanel:
         
         if self.notes_box and self.notes_box.active:
             self.notes_box.handle_event(event)
+    
+    def save_notes_to_node(self):
+        if self.current_node and self.notes_box:
+            self.current_node.notes = self.notes_box.get_text()
