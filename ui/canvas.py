@@ -3,6 +3,8 @@ import pygame
 import math
 import sys
 
+import tkinter as tk
+
 from settings import *
 
 from ui.camera import Camera
@@ -119,8 +121,21 @@ class Canvas:
                                 load_graph(self)
                                 self.properties_panel.set_node(None)
                             elif dropdown_result == "New":
-                                # We'll implement later
-                                pass
+                                if self.nodes or self.edges:
+                                    root = tk.Tk()
+                                    root.withdraw()
+                                    answer = messagebox.askyesnocancel("New Graph", "Save current graph?")
+                                    root.destroy()
+                                    
+                                    if answer is None:  # Cancel
+                                        pass
+                                    elif answer:  # Yes - save then clear
+                                        save_graph(self.nodes, self.edges, self.camera)
+                                        self.clear_graph()
+                                    else:  # No - clear without saving
+                                        self.clear_graph()
+                                else:
+                                    self.clear_graph()
                         
                         self.ribbon.active_dropdown = None
                         continue
@@ -320,6 +335,18 @@ class Canvas:
             
         self.ribbon.draw_dropdowns(self.screen)
         pygame.display.flip()
+    
+    def clear_graph(self):
+        self.nodes.clear()
+        self.edges.clear()
+        self.selected_node = None
+        self.selected_edge = None
+        self.properties_panel.set_node(None)
+        self.properties_panel.set_edge(None)
+        # Optional: reset camera
+        self.camera.x = 0
+        self.camera.y = 0
+        self.camera.zoom = 1.0
         
     def run(self):
         while self.running:
