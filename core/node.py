@@ -13,6 +13,8 @@ class Node:
         self.color = color if color else (150, 150, 150)  # Default gray
         self.selected = False
         
+        self.notes = ""
+        
         self.icon = None
         if icon_path:
             try:
