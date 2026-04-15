@@ -17,6 +17,8 @@ class Ribbon:
             {"x": 240, "text": "Help"},
         ]
 
+        self.file_dropdown = Dropdown(10, 40, ["New", "Save", "Load"])
+
         self.add_node_dropdown = Dropdown(70, 40, [
             "Person (Male)",                                       
             "Person (Female)",
@@ -59,6 +61,12 @@ class Ribbon:
                     self.active_dropdown = self.add_node_dropdown
                     self.add_node_dropdown.visible = True
                     return "dropdown_opened"
+                
+                if btn["text"] == "File":
+                    self.active_dropdown = self.file_dropdown
+                    self.file_dropdown.visible = True
+                    return "dropdown_opened"
+                
                 return btn["text"]
         
         if hasattr(self, 'trash_rect') and self.trash_rect.collidepoint(pos):
