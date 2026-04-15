@@ -11,6 +11,7 @@ class PropertiesPanel:
         self.height = SCREEN_HEIGHT - self.y
         self.visible = False
         self.current_node = None
+        self.current_edge = None
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         
         self.font = pygame.font.SysFont("Arial", 14)
@@ -20,6 +21,18 @@ class PropertiesPanel:
         self.property_boxes = {}
         self.notes_box = None
         
+    def set_edge(self, edge):
+        self.current_edge = edge
+        self.current_node = None
+        self.visible = edge is not None
+        
+        if edge:
+            # Create label text box for edge
+            self.label_box = TextBox(self.x + 80, self.y + 35, 180, 28, edge.label)
+            self.property_boxes = {}
+            self.notes_box = None
+            self.gender_value = None
+    
     def set_node(self, node):
         self.current_node = node
         self.visible = node is not None
@@ -53,52 +66,76 @@ class PropertiesPanel:
             self.notes_box.multiline = True  # Will handle later
     
     def draw(self, screen):
-        if not self.visible or not self.current_node:
+        if not self.visible or (not self.current_node and not self.current_edge):
             return
         
         # Panel background
         pygame.draw.rect(screen, (45, 45, 50), self.rect)
         pygame.draw.rect(screen, (80, 80, 85), self.rect, 2)
-        
-        # Title
-        title = self.font.render(self.current_node.node_type, True, (255, 255, 255))
-        screen.blit(title, (self.x + 10, self.y + 10))
-        
-        # Label row
-        label_text = self.font.render("Label:", True, (200, 200, 200))
-        screen.blit(label_text, (self.x + 10, self.y + 40))
-        if self.label_box:
-            self.label_box.draw(screen)
-        
-        # Properties section title
-        y_offset = self.y + 85
-        props_title = self.font.render("Properties:", True, (200, 200, 200))
-        screen.blit(props_title, (self.x + 10, y_offset))
-        y_offset += 30
-        
-        # Gender (read-only)
-        if self.gender_value:
-            gender_y = self.y + 175
-            gender_text = self.font.render(f"Gender: {self.gender_value}", True, (180, 180, 180))
-            screen.blit(gender_text, (self.x + 15, gender_y))
-        
-        # Property text boxes
-        for key, box in self.property_boxes.items():
-            # Draw label
-            key_display = key.replace('_', ' ').title()
-            key_text = self.font_small.render(f"{key_display}:", True, (180, 180, 180))
-            screen.blit(key_text, (self.x + 15, box.rect.y + 6))
-            # Draw text box
-            box.draw(screen)
-        
-        # Notes section
-        notes_y = self.y + 250
-        notes_title = self.font.render("Notes:", True, (200, 200, 200))
-        screen.blit(notes_title, (self.x + 10, notes_y))
-        
-        if self.notes_box:
-            self.notes_box.rect.y = notes_y + 25
-            self.notes_box.draw(screen)
+
+
+        if self.current_edge:
+            # Draw edge properties
+            title = self.font.render("Edge", True, (255, 255, 255))
+            screen.blit(title, (self.x + 10, self.y + 10))
+            
+            # Label row
+            label_text = self.font.render("Label:", True, (200, 200, 200))
+            screen.blit(label_text, (self.x + 10, self.y + 40))
+            if self.label_box:
+                self.label_box.draw(screen)
+            
+            # Source (read-only)
+            source_y = self.y + 90
+            source_text = self.font.render(f"Source: {self.current_edge.source.label}", True, (180, 180, 180))
+            screen.blit(source_text, (self.x + 15, source_y))
+            
+            # Target (read-only)
+            target_y = self.y + 120
+            target_text = self.font.render(f"Target: {self.current_edge.target.label}", True, (180, 180, 180))
+            screen.blit(target_text, (self.x + 15, target_y))
+            
+        else:
+
+            # Title
+            title = self.font.render(self.current_node.node_type, True, (255, 255, 255))
+            screen.blit(title, (self.x + 10, self.y + 10))
+            
+            # Label row
+            label_text = self.font.render("Label:", True, (200, 200, 200))
+            screen.blit(label_text, (self.x + 10, self.y + 40))
+            if self.label_box:
+                self.label_box.draw(screen)
+            
+            # Properties section title
+            y_offset = self.y + 85
+            props_title = self.font.render("Properties:", True, (200, 200, 200))
+            screen.blit(props_title, (self.x + 10, y_offset))
+            y_offset += 30
+            
+            # Gender (read-only)
+            if self.gender_value:
+                gender_y = self.y + 175
+                gender_text = self.font.render(f"Gender: {self.gender_value}", True, (180, 180, 180))
+                screen.blit(gender_text, (self.x + 15, gender_y))
+            
+            # Property text boxes
+            for key, box in self.property_boxes.items():
+                # Draw label
+                key_display = key.replace('_', ' ').title()
+                key_text = self.font_small.render(f"{key_display}:", True, (180, 180, 180))
+                screen.blit(key_text, (self.x + 15, box.rect.y + 6))
+                # Draw text box
+                box.draw(screen)
+            
+            # Notes section
+            notes_y = self.y + 250
+            notes_title = self.font.render("Notes:", True, (200, 200, 200))
+            screen.blit(notes_title, (self.x + 10, notes_y))
+            
+            if self.notes_box:
+                self.notes_box.rect.y = notes_y + 25
+                self.notes_box.draw(screen)
     
     def handle_click(self, pos):
         if not self.visible:
@@ -125,6 +162,11 @@ class PropertiesPanel:
     
     def handle_keyboard(self, event):
         if not self.visible:
+            return
+        
+        if self.current_edge and self.label_box and self.label_box.active:
+            self.label_box.handle_event(event)
+            self.current_edge.label = self.label_box.text
             return
         
         if self.label_box and self.label_box.active:
