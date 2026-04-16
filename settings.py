@@ -45,7 +45,11 @@ PERSON_FEMALE_ICON = ICON_PATH + "female.png"
 
 TRASH_ICON = ICON_PATH + "trash.png"
 
-
+# Colors
+BASTILLE = (45, 45, 50)
+WATER_OUZEL = (80, 80, 85)
+GAINSBORO = (220, 220, 220)
+VULCAN = (55, 55, 60)
 
 
 
