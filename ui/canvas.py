@@ -109,8 +109,6 @@ class Canvas:
                 if self.ribbon.active_dropdown:
                     dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
                     if dropdown_result:
-                        print(f"Selected: {dropdown_result}")
-    
                         # Check if this is a node type (Add Node dropdown)
                         node_types = ["Person (Male)", "Person (Female)", "Organization", 
                                       "Email", "Phone", "Document", "Database", "Social Media"]
@@ -179,7 +177,8 @@ class Canvas:
                 
                 panel_result = self.properties_panel.handle_click(event.pos)
                 if ribbon_result:
-                    print(f"Clicked: {ribbon_result}")
+                    pass # For Debugging purpose
+                    # print(f"Clicked: {ribbon_result}")
                     
                 # Check if in placement mode
                 if self.placement_mode and not self.ribbon.active_dropdown:
@@ -227,8 +226,6 @@ class Canvas:
                 if click_on_panel:
                     # Let panel handle click, don't deselect node
                     panel_result = self.properties_panel.handle_click(event.pos)
-                    if panel_result == "edit_label":
-                        print("Edit label clicked")
                     # Keep current selection, don't change anything
                 else:
                     self.selected_edge = None
