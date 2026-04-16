@@ -19,6 +19,7 @@ from entities.document import Document
 from entities.database import Database
 from entities.social_media import SocialMedia
 from entities.location import Location
+from entities.device import Device
 
 from core.edge import Edge
 
@@ -217,6 +218,8 @@ class Canvas:
                     elif self.pending_node_type == "Location":
                         new_node = Location(node_id, "Location", world_x, world_y)
                     
+                    elif self.pending_node_type == "Device":
+                        new_node = Device(node_id, "Device", world_x, world_y)
 
                     self.nodes.append(new_node)
                     self.unsaved_changes = True
