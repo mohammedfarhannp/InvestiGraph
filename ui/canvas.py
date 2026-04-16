@@ -39,6 +39,8 @@ class Canvas:
         self.selected_node = None
         self.selected_edge = None
         
+        self.unsaved_changes = False
+        
         self.placement_mode = False
         self.pending_node_type = None
         
@@ -90,10 +92,12 @@ class Canvas:
                         
                         self.properties_panel.set_node(None)
                         self.nodes.remove(self.selected_node)
+                        self.unsaved_changes = True
                         self.selected_node = None
                     elif self.selected_edge:
                         self.edges.remove(self.selected_edge)
                         self.selected_edge = None
+                        self.unsaved_changes = True
                 else:
                     self.properties_panel.handle_keyboard(event)
                     
@@ -117,9 +121,13 @@ class Canvas:
                             # This is from File dropdown (New, Save, Load)
                             if dropdown_result == "Save":
                                 save_graph(self.nodes, self.edges, self.camera)
+                                self.unsaved_changes = False
+                                
                             elif dropdown_result == "Load":
                                 load_graph(self)
                                 self.properties_panel.set_node(None)
+                                self.unsaved_changes = False
+                                
                             elif dropdown_result == "New":
                                 if self.nodes or self.edges:
                                     root = tk.Tk()
@@ -166,13 +174,10 @@ class Canvas:
                     continue
                 
                 panel_result = self.properties_panel.handle_click(event.pos)
-                if panel_result == "edit label":
-                    print("Edit label clicked")
                 
                 elif ribbon_result:
                     print(f"Clicked: {ribbon_result}")
                     
-                
                 # Check if in placement mode
                 if self.placement_mode and not self.ribbon.active_dropdown:
                     # Convert screen to world position
@@ -207,6 +212,7 @@ class Canvas:
                     
 
                     self.nodes.append(new_node)
+                    self.unsaved_changes = True
                     
                     # Exit placement mode
                     self.placement_mode = False
@@ -278,6 +284,7 @@ class Canvas:
                         edge_id = f"edge_{len(self.edges)}"
                         new_edge = Edge(edge_id, self.edge_source_node, clicked_node, "Relationship")
                         self.edges.append(new_edge)
+                        self.unsaved_changes = True
                     # Cancel edge creation mode
                     self.creating_edge = False
                     self.edge_source_node = None
@@ -296,7 +303,9 @@ class Canvas:
                                                           event.pos[1] - self.drag_node_offset[1]))
                     self.selected_node.x = world_x
                     self.selected_node.y = world_y
-                
+                    
+                    self.unsaved_changes = True
+                    
                 if self.creating_edge:
                     self.edge_temp_end = event.pos
         
@@ -347,7 +356,11 @@ class Canvas:
         self.camera.x = 0
         self.camera.y = 0
         self.camera.zoom = 1.0
+        self.unsaved_changes = False
         
+    def mark_unsaved(self):
+        self.unsaved_changes = True
+    
     def run(self):
         while self.running:
             self.handle_events()
