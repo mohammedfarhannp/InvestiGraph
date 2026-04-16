@@ -35,7 +35,7 @@ class Ribbon:
         
         self.trash_icon = None
         try:
-            self.trash_icon = pygame.image.load("assets/icons/trash.png").convert_alpha()
+            self.trash_icon = pygame.image.load(TRASH_ICON).convert_alpha()
             self.trash_icon = pygame.transform.scale(self.trash_icon, (24, 24))
         except:
             print("Trash icon not found")
