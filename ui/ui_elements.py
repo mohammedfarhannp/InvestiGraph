@@ -6,8 +6,8 @@ from settings import *
 class Ribbon:
     def __init__(self):
         self.height = 40
-        self.color = (45, 45, 50)
-        self.border_color = (80, 80, 85)
+        self.color = BASTILLE
+        self.border_color = WATER_OUZEL
         
         # Buttons (x position, text)
         self.buttons = [
@@ -83,7 +83,7 @@ class Ribbon:
         pygame.draw.line(screen, self.border_color, (0, self.height), (SCREEN_WIDTH, self.height), 2)
         
         for btn in self.buttons:
-            text_surface = self.font.render(btn["text"], True, (220, 220, 220))
+            text_surface = self.font.render(btn["text"], True, GAINSBORO)
             screen.blit(text_surface, (btn["x"], 12))
             
         if self.trash_icon:
@@ -116,12 +116,12 @@ class Dropdown:
             
         # Draw dropdown background
         dropdown_rect = pygame.Rect(self.x, self.y, self.width, len(self.options) * self.item_height)
-        pygame.draw.rect(screen, (55, 55, 60), dropdown_rect)
-        pygame.draw.rect(screen, (80, 80, 85), dropdown_rect, 2)
+        pygame.draw.rect(screen, VULCAN, dropdown_rect)
+        pygame.draw.rect(screen, WATER_OUZEL, dropdown_rect, 2)
         
         # Draw options
         for i, option in enumerate(self.options):
-            text_surface = self.font.render(option, True, (220, 220, 220))
+            text_surface = self.font.render(option, True, GAINSBORO)
             text_y = self.y + i * self.item_height + 8
             screen.blit(text_surface, (self.x + 10, text_y))
             
