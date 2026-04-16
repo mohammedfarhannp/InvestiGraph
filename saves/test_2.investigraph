@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "camera": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1.0
+  },
+  "nodes": [
+    {
+      "id": "Email_0",
+      "type": "Email",
+      "label": "Email",
+      "x": 289.0,
+      "y": 198.0,
+      "properties": {
+        "address": "Email",
+        "associated_with": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "Document_1",
+      "type": "Document",
+      "label": "Document",
+      "x": 642.0,
+      "y": 218.0,
+      "properties": {
+        "title": "Document",
+        "content": null,
+        "file_path": null,
+        "associated_with": []
+      },
+      "notes": ""
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0",
+      "source_id": "Email_0",
+      "target_id": "Document_1",
+      "label": "Relationship"
+    }
+  ]
+}
