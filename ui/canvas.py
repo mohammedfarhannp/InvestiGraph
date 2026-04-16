@@ -131,7 +131,7 @@ class Canvas:
                                 self.unsaved_changes = False
                                 
                             elif dropdown_result == "New":
-                                if self.nodes or self.edges:
+                                if (self.nodes or self.edges) and self.unsaved_changes:
                                     root = tk.Tk()
                                     root.withdraw()
                                     answer = tk.messagebox.askyesnocancel("New Graph", "Save current graph?")
@@ -142,8 +142,10 @@ class Canvas:
                                     elif answer:  # Yes - save then clear
                                         save_graph(self.nodes, self.edges, self.camera)
                                         self.clear_graph()
+                                        self.unsaved_changes = False
                                     else:  # No - clear without saving
                                         self.clear_graph()
+                                        self.unsaved_changes = False 
                                 else:
                                     self.clear_graph()
                         
@@ -176,8 +178,7 @@ class Canvas:
                     continue
                 
                 panel_result = self.properties_panel.handle_click(event.pos)
-                
-                elif ribbon_result:
+                if ribbon_result:
                     print(f"Clicked: {ribbon_result}")
                     
                 # Check if in placement mode
