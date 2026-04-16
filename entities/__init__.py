@@ -1,12 +1,12 @@
-from database import Database
-from device import Device
-from document import Document
-from location import Location
-from organization import Organization
-from email import Email
-from person import Person
-from social_media import SocialMedia
-from phone import Phone
+from entities.database import Database
+from entities.device import Device
+from entities.document import Document
+from entities.location import Location
+from entities.organization import Organization
+from entities.email import Email
+from entities.person import Person
+from entities.social_media import SocialMedia
+from entities.phone import Phone
 
 __all__ = ["Person", "Device", "Database", "Document",
            "SocialMedia", "Location", "Email",
