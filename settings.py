@@ -22,7 +22,7 @@ COLOR_DOCUMENT = (255, 255, 100)       # Yellow
 COLOR_DATABASE = (128, 128, 128)       # Gray
 COLOR_SOCIAL_MEDIA = (29, 161, 242)    # Twitter blue
 COLOR_LOCATION = (0, 150, 200)         # Teal/Cyan
-
+COLOR_DEVICE = (100, 200, 100)         # Light Green
 
 # Node Defaults
 DEFAULT_NODE_RADIUS = 30
