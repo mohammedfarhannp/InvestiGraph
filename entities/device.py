@@ -12,9 +12,6 @@ class Device(Node):
             "device_type": device_type,
             "manufacturer": None,
             "model": None,
-            "os": None,
-            "ip_address": None,
-            "mac_address": None,
             "associated_with": []  # List of person/organization IDs
         }
     
