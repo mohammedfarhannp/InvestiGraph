@@ -1,10 +1,10 @@
 # entities/device.py
 from core.node import Node
-from settings import COLOR_DEVICE
+from settings import COLOR_DEVICE, DEVICE_ICON
 
 class Device(Node):
     def __init__(self, node_id, label, x, y, device_type=None):
-        icon_path = "assets/icons/device.png"
+        icon_path = DEVICE_ICON
         super().__init__(node_id, "Device", label, x, y, COLOR_DEVICE, icon_path)
         self.device_type = device_type  # Computer, Phone, Server, Tablet, etc.
         self.properties = {
