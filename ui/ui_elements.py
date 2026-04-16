@@ -13,8 +13,7 @@ class Ribbon:
         self.buttons = [
             {"x": 10, "text": "File"},
             {"x": 70, "text": "Add Node"},
-            {"x": 150, "text": "Transforms"},
-            {"x": 240, "text": "Help"},
+            {"x": 150, "text": "Help"},
         ]
 
         self.file_dropdown = Dropdown(10, 40, ["New", "Save", "Load"])
@@ -27,7 +26,9 @@ class Ribbon:
             "Phone",
             "Document",
             "Database",
-            "Social Media"])
+            "Social Media",
+            "Location",
+            "Device"])
         
         self.active_dropdown = None
         self.font = pygame.font.SysFont("Arial", 14)
