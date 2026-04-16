@@ -10,21 +10,12 @@ from ui.camera import Camera
 from ui.ui_elements import Ribbon
 from ui.properties_panel import PropertiesPanel
 
-from entities.person import Person
-from entities.email import Email
-from entities.phone import Phone
-from entities.organization import Organization
-from entities.document import Document
-from entities.database import Database
-from entities.social_media import SocialMedia
-from entities.location import Location
-from entities.device import Device
+from entities import *
 
 from core.edge import Edge
 from core.graph import Graph
 
 from utils.file_io import save_graph, load_graph 
-
 
 class Canvas:
     def __init__(self):
