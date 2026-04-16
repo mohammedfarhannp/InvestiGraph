@@ -19,9 +19,9 @@ class Camera:
                 self.drag_start_x = event.pos[0]
                 self.drag_start_y = event.pos[1]
             elif event.button == 4:  # Scroll up
-                self.zoom = min(self.zoom * 1.1, 3.0)
+                self.zoom = min(self.zoom * 1.1, 2.0)
             elif event.button == 5:  # Scroll down
-                self.zoom = max(self.zoom / 1.1, 0.3)
+                self.zoom = max(self.zoom / 1.1, 0.4)
                 
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:  # Left mouse button
