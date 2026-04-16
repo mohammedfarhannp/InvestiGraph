@@ -18,6 +18,7 @@ from entities.organization import Organization
 from entities.document import Document
 from entities.database import Database
 from entities.social_media import SocialMedia
+from entities.location import Location
 
 from core.edge import Edge
 
@@ -111,7 +112,8 @@ class Canvas:
                     if dropdown_result:
                         # Check if this is a node type (Add Node dropdown)
                         node_types = ["Person (Male)", "Person (Female)", "Organization", 
-                                      "Email", "Phone", "Document", "Database", "Social Media"]
+                                      "Email", "Phone", "Document", "Database", "Social Media",
+                                      "Location", "Device"]
                         
                         if dropdown_result in node_types:
                             self.placement_mode = True
@@ -211,6 +213,9 @@ class Canvas:
                         
                     elif self.pending_node_type == "Social Media":
                         new_node = SocialMedia(node_id, "Social Media", world_x, world_y)
+                        
+                    elif self.pending_node_type == "Location":
+                        new_node = Location(node_id, "Location", world_x, world_y)
                     
 
                     self.nodes.append(new_node)
