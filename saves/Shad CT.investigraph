@@ -1,0 +1,68 @@
+{
+  "version": "1.0",
+  "camera": {
+    "x": -64,
+    "y": -129,
+    "zoom": 1.2100000000000002
+  },
+  "nodes": [
+    {
+      "id": "Person (Male)_0",
+      "type": "Person",
+      "label": "Shad CT",
+      "x": 390.89256198347107,
+      "y": 437.0909090909091,
+      "properties": {
+        "name": "Person (Male)",
+        "gender": "male",
+        "email": null,
+        "phone": null
+      },
+      "notes": "",
+      "gender": "male"
+    },
+    {
+      "id": "Organization_1",
+      "type": "Organization",
+      "label": "Altezzi",
+      "x": 578.3305785123966,
+      "y": 249.4793388429752,
+      "properties": {
+        "name": "Organization",
+        "website": null,
+        "email": null,
+        "phone": null,
+        "employees": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "Social Media_2",
+      "type": "SocialMedia",
+      "label": "Github",
+      "x": 158.6776859504132,
+      "y": 314.0495867768594,
+      "properties": {
+        "username": "shad-ct",
+        "platform": null,
+        "url": "https://github.com/shad-ct",
+        "associated_with": []
+      },
+      "notes": ""
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0",
+      "source_id": "Person (Male)_0",
+      "target_id": "Organization_1",
+      "label": "Works for"
+    },
+    {
+      "id": "edge_1",
+      "source_id": "Person (Male)_0",
+      "target_id": "Social Media_2",
+      "label": "Has Github"
+    }
+  ]
+}
