@@ -1,6 +1,11 @@
 # InvestiGraph
 An investigation graph tool built with Pygame — visualize and connect entities like people, organizations, emails, phones, documents, databases, and social media accounts.
 
+## Screenshots
+
+![InvestiGraph in action](https://github.com/mohammedfarhannp/InvestiGraph/blob/master/assets/screenshots/Screenshot%202.png)
+
+
 ## Features
 
 - **8 Entity Types** — Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media
