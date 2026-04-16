@@ -58,6 +58,19 @@ class Canvas:
         self.edge_source_node = None
         self.edge_temp_end = None
         
+        self.Node_Types = {
+            "Person (Male)": Person,
+            "Person (Female)": Person,
+            "Organization": Organization, 
+            "Email": Email,
+            "Phone": Phone,
+            "Document": Document,
+            "Database": Database,
+            "Social Media": SocialMedia,
+            "Location": Location,
+            "Device": Device
+            }
+        
 
     def draw_grid(self):
         start_x = int(-self.camera.x / self.camera.zoom / GRID_SPACING) - 1
@@ -101,11 +114,7 @@ class Canvas:
                 if self.ribbon.active_dropdown:
                     dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
                     if dropdown_result:
-                        node_types = ["Person (Male)", "Person (Female)", "Organization", 
-                                      "Email", "Phone", "Document", "Database", "Social Media",
-                                      "Location", "Device"]
-                        
-                        if dropdown_result in node_types:
+                        if dropdown_result in self.Node_Types.keys():
                             self.placement_mode = True
                             self.pending_node_type = dropdown_result
                             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
@@ -161,25 +170,11 @@ class Canvas:
                     world_x, world_y = self.camera.apply(event.pos)
                     node_id = f"{self.pending_node_type}_{len(self.graph.nodes)}"
                     
-                    if self.pending_node_type in ("Person (Male)", "Person (Female)"):
-                        gender = "male" if self.pending_node_type == "Person (Male)" else "female"
-                        new_node = Person(node_id, "New Person", world_x, world_y, gender)
-                    elif self.pending_node_type == "Email":
-                        new_node = Email(node_id, "Email", world_x, world_y)
-                    elif self.pending_node_type == "Phone":
-                        new_node = Phone(node_id, "Phone", world_x, world_y)
-                    elif self.pending_node_type == "Organization":
-                        new_node = Organization(node_id, "Organization", world_x, world_y)
-                    elif self.pending_node_type == "Document":
-                        new_node = Document(node_id, "Document", world_x, world_y)
-                    elif self.pending_node_type == "Database":
-                        new_node = Database(node_id, "Database", world_x, world_y)
-                    elif self.pending_node_type == "Social Media":
-                        new_node = SocialMedia(node_id, "Social Media", world_x, world_y)
-                    elif self.pending_node_type == "Location":
-                        new_node = Location(node_id, "Location", world_x, world_y)
-                    elif self.pending_node_type == "Device":
-                        new_node = Device(node_id, "Device", world_x, world_y)
+                    if self.pending_node_type in self.Node_Types.keys():
+                        if self.pending_node_type == "Person (Female)":
+                            new_node = self.Node_Types[self.pending_node_type](node_id, self.pending_node_type, world_x, world_y, "female")
+                        else:
+                            new_node = self.Node_Types[self.pending_node_type](node_id, self.pending_node_type, world_x, world_y)
 
                     self.graph.add_node(new_node)
                     self.unsaved_changes = True
