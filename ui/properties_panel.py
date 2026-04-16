@@ -14,13 +14,18 @@ class PropertiesPanel:
         self.current_edge = None
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         
+        self.canvas = None
+
         self.font = pygame.font.SysFont("Arial", 14)
         self.font_small = pygame.font.SysFont("Arial", 12)
         
         self.label_box = None
         self.property_boxes = {}
         self.notes_box = None
-        
+    
+    def set_canvas(self, canvas):
+        self.canvas = canvas
+    
     def set_edge(self, edge):
         self.current_edge = edge
         self.current_node = None
@@ -167,20 +172,29 @@ class PropertiesPanel:
         if self.current_edge and self.label_box and self.label_box.active:
             self.label_box.handle_event(event)
             self.current_edge.label = self.label_box.text
+            if self.canvas:
+                self.canvas.mark_unsaved()
             return
         
         if self.label_box and self.label_box.active:
             self.label_box.handle_event(event)
             self.current_node.label = self.label_box.text
+            if self.canvas:
+                self.canvas.mark_unsaved()
         
         for key, box in self.property_boxes.items():
             if box.active:
                 box.handle_event(event)
                 self.current_node.properties[key] = box.text
+                
+                if self.canvas:
+                    self.canvas.mark_unsaved()
         
         if self.notes_box and self.notes_box.active:
             self.notes_box.handle_event(event)
             self.current_node.notes = self.notes_box.get_text()
+            if self.canvas:
+                self.canvas.mark_unsaved()
     
     def save_notes_to_node(self):
         if self.current_node and self.notes_box:
