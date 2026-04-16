@@ -2,7 +2,6 @@
 import pygame
 import math
 import sys
-
 import tkinter as tk
 
 from settings import *
@@ -22,6 +21,7 @@ from entities.location import Location
 from entities.device import Device
 
 from core.edge import Edge
+from core.graph import Graph
 
 from utils.file_io import save_graph, load_graph 
 
@@ -37,7 +37,7 @@ class Canvas:
         self.ribbon = Ribbon()
         self.camera = Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-        self.nodes = []
+        self.graph = Graph()
         self.selected_node = None
         self.selected_edge = None
         
@@ -52,16 +52,14 @@ class Canvas:
         self.properties_panel = PropertiesPanel()
         self.properties_panel.set_canvas(self)
         
-        pygame.key.set_repeat(500, 50)  # First delay 500ms, then repeat every 50ms
+        pygame.key.set_repeat(500, 50)
         
-        self.edges = []
         self.creating_edge = False
         self.edge_source_node = None
         self.edge_temp_end = None
         
 
     def draw_grid(self):
-        # Calculate visible grid range
         start_x = int(-self.camera.x / self.camera.zoom / GRID_SPACING) - 1
         start_y = int(-self.camera.y / self.camera.zoom / GRID_SPACING) - 1
         end_x = start_x + int(SCREEN_WIDTH / self.camera.zoom / GRID_SPACING) + 2
@@ -72,7 +70,6 @@ class Canvas:
                 screen_x = i * GRID_SPACING * self.camera.zoom + self.camera.x
                 screen_y = j * GRID_SPACING * self.camera.zoom + self.camera.y
                 
-                # Only draw if on screen AND below ribbon
                 if -GRID_SPACING <= screen_x <= SCREEN_WIDTH + GRID_SPACING and \
                    self.ribbon.height <= screen_y <= SCREEN_HEIGHT + GRID_SPACING:
                     pygame.draw.circle(self.screen, GRID_COLOR, (int(screen_x), int(screen_y)), 2)
@@ -87,19 +84,12 @@ class Canvas:
                     self.running = False
                 elif event.key == pygame.K_DELETE:
                     if self.selected_node:
-                        edges_to_remove = []
-                        for edge in self.edges:
-                            if edge.source == self.selected_node or edge.target == self.selected_node:
-                                edges_to_remove.append(edge)
-                        for edge in edges_to_remove:
-                            self.edges.remove(edge)
-                        
+                        self.graph.remove_node(self.selected_node)
                         self.properties_panel.set_node(None)
-                        self.nodes.remove(self.selected_node)
                         self.unsaved_changes = True
                         self.selected_node = None
                     elif self.selected_edge:
-                        self.edges.remove(self.selected_edge)
+                        self.graph.remove_edge(self.selected_edge)
                         self.selected_edge = None
                         self.unsaved_changes = True
                 else:
@@ -111,7 +101,6 @@ class Canvas:
                 if self.ribbon.active_dropdown:
                     dropdown_result = self.ribbon.active_dropdown.handle_click(event.pos)
                     if dropdown_result:
-                        # Check if this is a node type (Add Node dropdown)
                         node_types = ["Person (Male)", "Person (Female)", "Organization", 
                                       "Email", "Phone", "Document", "Database", "Social Media",
                                       "Location", "Device"]
@@ -121,30 +110,27 @@ class Canvas:
                             self.pending_node_type = dropdown_result
                             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_CROSSHAIR)
                         else:
-                            # This is from File dropdown (New, Save, Load)
                             if dropdown_result == "Save":
-                                save_graph(self.nodes, self.edges, self.camera)
+                                save_graph(self.graph.nodes, self.graph.edges, self.camera)
                                 self.unsaved_changes = False
-                                
                             elif dropdown_result == "Load":
                                 load_graph(self)
                                 self.properties_panel.set_node(None)
                                 self.unsaved_changes = False
-                                
                             elif dropdown_result == "New":
-                                if (self.nodes or self.edges) and self.unsaved_changes:
+                                if (self.graph.nodes or self.graph.edges) and self.unsaved_changes:
                                     root = tk.Tk()
                                     root.withdraw()
                                     answer = tk.messagebox.askyesnocancel("New Graph", "Save current graph?")
                                     root.destroy()
                                     
-                                    if answer is None:  # Cancel
+                                    if answer is None:
                                         pass
-                                    elif answer:  # Yes - save then clear
-                                        save_graph(self.nodes, self.edges, self.camera)
+                                    elif answer:
+                                        save_graph(self.graph.nodes, self.graph.edges, self.camera)
                                         self.clear_graph()
                                         self.unsaved_changes = False
-                                    else:  # No - clear without saving
+                                    else:
                                         self.clear_graph()
                                         self.unsaved_changes = False 
                                 else:
@@ -152,79 +138,52 @@ class Canvas:
                         
                         self.ribbon.active_dropdown = None
                         continue
-                        
-                        
                     else:
-                        # Clicked outside dropdown, close it
                         self.ribbon.active_dropdown = None
                 
                 # Then check ribbon buttons
                 ribbon_result = self.ribbon.handle_click(event.pos)
                 if ribbon_result == "delete":
                     if self.selected_node:
-                        edges_to_remove = []
-                        for edge in self.edges:
-                            if edge.source == self.selected_node or edge.target == self.selected_node:
-                                edges_to_remove.append(edge)
-                        for edge in edges_to_remove:
-                            self.edges.remove(edge)
-                        
+                        self.graph.remove_node(self.selected_node)
                         self.properties_panel.set_node(None)
-                        self.nodes.remove(self.selected_node)
                         self.selected_node = None
-                        
                     if self.selected_edge:
-                        self.edges.remove(self.selected_edge)
+                        self.graph.remove_edge(self.selected_edge)
                         self.selected_edge = None
                     continue
                 
-                panel_result = self.properties_panel.handle_click(event.pos)
                 if ribbon_result:
-                    pass # For Debugging purpose
-                    # print(f"Clicked: {ribbon_result}")
+                    pass
                     
                 # Check if in placement mode
                 if self.placement_mode and not self.ribbon.active_dropdown:
-                    # Convert screen to world position
                     world_x, world_y = self.camera.apply(event.pos)
+                    node_id = f"{self.pending_node_type}_{len(self.graph.nodes)}"
                     
-                    # Create node based on type
-                    node_id = f"{self.pending_node_type}_{len(self.nodes)}"
-                    # Add logic to create appropriate entity
-                    # For now, just create Person
-                    # Map dropdown text to entity
                     if self.pending_node_type in ("Person (Male)", "Person (Female)"):
                         gender = "male" if self.pending_node_type == "Person (Male)" else "female"
                         new_node = Person(node_id, "New Person", world_x, world_y, gender)
-                    
                     elif self.pending_node_type == "Email":
                         new_node = Email(node_id, "Email", world_x, world_y)
-                    
                     elif self.pending_node_type == "Phone":
                         new_node = Phone(node_id, "Phone", world_x, world_y)
-                        
                     elif self.pending_node_type == "Organization":
                         new_node = Organization(node_id, "Organization", world_x, world_y)
-                        
                     elif self.pending_node_type == "Document":
                         new_node = Document(node_id, "Document", world_x, world_y)
-
                     elif self.pending_node_type == "Database":
                         new_node = Database(node_id, "Database", world_x, world_y)
-                        
                     elif self.pending_node_type == "Social Media":
                         new_node = SocialMedia(node_id, "Social Media", world_x, world_y)
-                        
                     elif self.pending_node_type == "Location":
                         new_node = Location(node_id, "Location", world_x, world_y)
-                    
                     elif self.pending_node_type == "Device":
                         new_node = Device(node_id, "Device", world_x, world_y)
 
-                    self.nodes.append(new_node)
+                    self.graph.add_node(new_node)
                     self.unsaved_changes = True
                     
-                    # Exit placement mode
                     self.placement_mode = False
                     self.pending_node_type = None
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
@@ -232,17 +191,13 @@ class Canvas:
                 
                 click_on_panel = self.properties_panel.visible and self.properties_panel.rect.collidepoint(event.pos)
                 if click_on_panel:
-                    # Let panel handle click, don't deselect node
                     panel_result = self.properties_panel.handle_click(event.pos)
-                    # Keep current selection, don't change anything
                 else:
-                    self.selected_edge = None
-                    for edge in self.edges:
+                    for edge in self.graph.edges:
                         edge.selected = False
                     
-                    # Not clicking on panel - normal node selection/deselection
                     self.selected_node = None
-                    for node in reversed(self.nodes):
+                    for node in reversed(self.graph.nodes):
                         if node.contains_point(event.pos, self.camera):
                             self.selected_node = node
                             node.selected = True
@@ -251,54 +206,44 @@ class Canvas:
                             
                     if not self.selected_node:
                         self.selected_edge = None
-                        for edge in reversed(self.edges):
+                        for edge in reversed(self.graph.edges):
                             if edge.contains_point(event.pos, self.camera):
                                 self.selected_edge = edge
                                 edge.selected = True
                             else:
                                 edge.selected = False
                     
-                    # Update panel based on selection
                     if self.selected_node:
                         self.properties_panel.set_edge(None)
                         self.properties_panel.set_node(self.selected_node)
-                        # Start dragging
                         self.dragging_node = True
                         node_screen_pos = self.camera.to_screen((self.selected_node.x, self.selected_node.y))
                         self.drag_node_offset = (event.pos[0] - node_screen_pos[0], event.pos[1] - node_screen_pos[1])
-                    
                     elif self.selected_edge:
                         self.properties_panel.set_node(None)
                         self.properties_panel.set_edge(self.selected_edge)
-                        
                     else:
                         self.properties_panel.set_node(None)
                         self.properties_panel.set_edge(None)
-                
 
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:  # Right click
-                # Check if clicking on node
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 clicked_node = None
-                for node in reversed(self.nodes):
+                for node in reversed(self.graph.nodes):
                     if node.contains_point(event.pos, self.camera):
                         clicked_node = node
                         break
                 
                 if self.creating_edge:
-                    # Currently creating an edge
                     if clicked_node and clicked_node != self.edge_source_node:
-                        # Create edge
-                        edge_id = f"edge_{len(self.edges)}"
+                        edge_id = f"edge_{len(self.graph.edges)}"
                         new_edge = Edge(edge_id, self.edge_source_node, clicked_node, "Relationship")
-                        self.edges.append(new_edge)
+                        self.graph.add_edge(new_edge)
                         self.unsaved_changes = True
-                    # Cancel edge creation mode
                     self.creating_edge = False
                     self.edge_source_node = None
                     self.edge_temp_end = None
                 else:
-                    # Start creating edge if clicking on a node
                     if clicked_node:
                         self.creating_edge = True
                         self.edge_source_node = clicked_node
@@ -311,7 +256,6 @@ class Canvas:
                                                           event.pos[1] - self.drag_node_offset[1]))
                     self.selected_node.x = world_x
                     self.selected_node.y = world_y
-                    
                     self.unsaved_changes = True
                     
                 if self.creating_edge:
@@ -320,7 +264,6 @@ class Canvas:
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.dragging_node = False
             
-            # Camera handles its own events
             camera_should_drag = not self.selected_node
             self.camera.handle_event(event, camera_should_drag)
                     
@@ -330,12 +273,11 @@ class Canvas:
         self.draw_grid()
         self.properties_panel.draw(self.screen)
         
-        for node in self.nodes:
+        for node in self.graph.nodes:
             node.draw(self.screen, self.camera)
             
         if self.creating_edge and self.edge_source_node and self.edge_temp_end:
             start = self.camera.to_screen((self.edge_source_node.x, self.edge_source_node.y))
-            # Calculate edge of source node circle
             dx = self.edge_temp_end[0] - start[0]
             dy = self.edge_temp_end[1] - start[1]
             dist = math.hypot(dx, dy)
@@ -347,20 +289,18 @@ class Canvas:
             
             pygame.draw.line(self.screen, (200, 200, 200), start_intersect, self.edge_temp_end, 2)
 
-        for edge in self.edges:
+        for edge in self.graph.edges:
             edge.draw(self.screen, self.camera)
             
         self.ribbon.draw_dropdowns(self.screen)
         pygame.display.flip()
     
     def clear_graph(self):
-        self.nodes.clear()
-        self.edges.clear()
+        self.graph.clear()
         self.selected_node = None
         self.selected_edge = None
         self.properties_panel.set_node(None)
         self.properties_panel.set_edge(None)
-        # Optional: reset camera
         self.camera.x = 0
         self.camera.y = 0
         self.camera.zoom = 1.0
