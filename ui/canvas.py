@@ -124,7 +124,7 @@ class Canvas:
                                 if self.nodes or self.edges:
                                     root = tk.Tk()
                                     root.withdraw()
-                                    answer = messagebox.askyesnocancel("New Graph", "Save current graph?")
+                                    answer = tk.messagebox.askyesnocancel("New Graph", "Save current graph?")
                                     root.destroy()
                                     
                                     if answer is None:  # Cancel
