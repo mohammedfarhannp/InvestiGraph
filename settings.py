@@ -27,3 +27,38 @@ COLOR_DEVICE = (100, 200, 100)         # Light Green
 # Node Defaults
 DEFAULT_NODE_RADIUS = 30
 DEFAULT_FONT_SIZE = 12
+
+# Assets (Icon Paths)
+ICON_PATH = "assets/icons/"
+
+DATABASE_ICON = ICON_PATH + "Database.png"
+DEVICE_ICON = ICON_PATH + "Device.png"
+DOCUMENT_ICON = ICON_PATH + "Document.png"
+EMAIL_ICON = ICON_PATH + "Email.png"
+LOCATION_ICON = ICON_PATH + "Location.png"
+ORGANIZATION_ICON = ICON_PATH + "Organization.png"
+PHONE_ICON = ICON_PATH + "Phone.png"
+SOCIAL_MEDIA_ICON = ICON_PATH + "Social_Media.png"
+
+PERSON_MALE_ICON = ICON_PATH + "male.png"
+PERSON_FEMALE_ICON = ICON_PATH + "female.png"
+
+TRASH_ICON = ICON_PATH + "trash.png"
+
+# Colors
+BASTILLE = (45, 45, 50)
+WATER_OUZEL = (80, 80, 85)
+GAINSBORO = (220, 220, 220)
+VULCAN = (55, 55, 60)
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,10 +1,10 @@
 # entities/location.py
 from core.node import Node
-from settings import COLOR_LOCATION
+from settings import COLOR_LOCATION, LOCATION_ICON
 
 class Location(Node):
     def __init__(self, node_id, label, x, y):
-        icon_path = "assets/icons/Location.png"
+        icon_path = LOCATION_ICON
         super().__init__(node_id, "Location", label, x, y, COLOR_LOCATION, icon_path)
         self.properties = {
             "name": label,

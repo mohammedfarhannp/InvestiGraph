@@ -1,10 +1,10 @@
 # entities/database.py
 from core.node import Node
-from settings import COLOR_DATABASE
+from settings import COLOR_DATABASE, DATABASE_ICON
 
 class Database(Node):
     def __init__(self, node_id, label, x, y):
-        icon_path = "assets/icons/Database.png"
+        icon_path = DATABASE_ICON
         super().__init__(node_id, "Database", label, x, y, COLOR_DATABASE, icon_path)
         self.properties = {
             "name": label,
