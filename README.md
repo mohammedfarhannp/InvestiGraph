@@ -8,7 +8,7 @@ An investigation graph tool built with Pygame — visualize and connect entities
 
 ## Features
 
-- **8 Entity Types** — Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media
+- **10 Entity Types** — Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media, Device, Location
 - **Visual Graph** — Drag nodes, create directed edges, pan/zoom canvas
 - **Properties Panel** — Edit labels, properties, and multi-line notes for each node
 - **Edge Labels** — Name your relationships
