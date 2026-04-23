@@ -54,7 +54,7 @@ VULCAN = (55, 55, 60)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
-
+BRUSHED_METAL = (200, 200, 200)
 
 
 
