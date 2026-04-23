@@ -10,12 +10,12 @@ class TextBox:
         self.active = False
         self.multiline = multiline
         self.font = pygame.font.SysFont("Arial", 14)
-        self.color_bg = (60, 60, 65)
-        self.color_border = (80, 80, 85)
-        self.color_active = (100, 100, 255)
-        self.color_text = (220, 220, 220)
-        self.color_placeholder = (120, 120, 120)
-        self.color_selection = (70, 130, 200)
+        self.color_bg = IN_THE_DARK
+        self.color_border = WATER_OUZEL
+        self.color_active = BLUE_GENIE
+        self.color_text = GAINSBORO
+        self.color_placeholder = WESTCHESTER_GRAY
+        self.color_selection = CASTING_SEA
         
         self.cursor_visible = True
         self.cursor_timer = 0
@@ -90,7 +90,7 @@ class TextBox:
         if self.active and self.cursor_visible:
             cursor_x = self.rect.x + 5 + self.font.size(self.text[:self.cursor_pos])[0] - scroll_offset
             if 5 <= cursor_x - self.rect.x <= self.rect.width - 5:
-                pygame.draw.line(screen, (255, 255, 255), 
+                pygame.draw.line(screen, WHITE, 
                                (cursor_x, self.rect.y + 5), 
                                (cursor_x, self.rect.y + self.rect.height - 5), 2)
     
@@ -146,7 +146,7 @@ class TextBox:
             # Draw cursor on this line if active
             if self.active and self.cursor_visible and self.cursor_line == i:
                 cursor_x = x_offset + self.font.size(line[:self.cursor_col])[0]
-                pygame.draw.line(screen, (255, 255, 255), 
+                pygame.draw.line(screen, WHITE, 
                                (cursor_x, y_offset), 
                                (cursor_x, y_offset + self.line_height - 4), 2)
             
