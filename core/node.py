@@ -10,7 +10,7 @@ class Node:
         self.x = x
         self.y = y
         self.radius = DEFAULT_NODE_RADIUS
-        self.color = color if color else (150, 150, 150)  # Default gray
+        self.color = color if color else DEFAULT_NODE_COLOR
         self.selected = False
         
         self.notes = ""
@@ -36,7 +36,7 @@ class Node:
         border_width = max(1, int(3 if self.selected else 2))
         
         # Draw circle
-        border_color = (255, 255, 0) if self.selected else (0, 0, 0)
+        border_color = YELLOW if self.selected else BLACK
         pygame.draw.circle(screen, self.color, (int(screen_x), int(screen_y)), scaled_radius)
         pygame.draw.circle(screen, border_color, (int(screen_x), int(screen_y)), scaled_radius, border_width)
         
@@ -51,7 +51,7 @@ class Node:
         # Draw label (scale font size with zoom)
         font_size = max(8, int(DEFAULT_FONT_SIZE * camera.zoom))
         font = pygame.font.SysFont("Arial", font_size)
-        text_surface = font.render(self.label, True, (255, 255, 255))
+        text_surface = font.render(self.label, True, WHITE)
         text_rect = text_surface.get_rect(center=(int(screen_x), int(screen_y + scaled_radius + 5)))
         screen.blit(text_surface, text_rect)
         
