@@ -21,7 +21,7 @@ class Edge:
         # Scale line width with zoom
         width = max(1, int(3 if self.selected else 2 * camera.zoom))
         
-        color = (255, 255, 0) if self.selected else (200, 200, 200)
+        color = YELLOW if self.selected else BRUSHED_METAL
         pygame.draw.line(screen, color, start_intersect, end_intersect, width)
         
         # Scale arrowhead size with zoom
@@ -32,12 +32,12 @@ class Edge:
         mid_y = (start_intersect[1] + end_intersect[1]) // 2
         
         font = pygame.font.SysFont("Arial", 12)
-        label_surface = font.render(self.label, True, (220, 220, 220))
+        label_surface = font.render(self.label, True, GAINSBORO)
         label_rect = label_surface.get_rect(center=(mid_x, mid_y - 10))
         
         # Background for label
-        pygame.draw.rect(screen, (45, 45, 50), label_rect.inflate(6, 4))
-        pygame.draw.rect(screen, (80, 80, 85), label_rect.inflate(6, 4), 1)
+        pygame.draw.rect(screen, BASTILLE, label_rect.inflate(6, 4))
+        pygame.draw.rect(screen, WATER_OUZEL, label_rect.inflate(6, 4), 1)
         screen.blit(label_surface, label_rect)
         
     def draw_arrowhead(self, screen, start, end, color, zoom):
