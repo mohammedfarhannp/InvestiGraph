@@ -75,67 +75,67 @@ class PropertiesPanel:
             return
         
         # Panel background
-        pygame.draw.rect(screen, (45, 45, 50), self.rect)
-        pygame.draw.rect(screen, (80, 80, 85), self.rect, 2)
+        pygame.draw.rect(screen, BASTILLE, self.rect)
+        pygame.draw.rect(screen, WATER_OUZEL, self.rect, 2)
 
 
         if self.current_edge:
             # Draw edge properties
-            title = self.font.render("Edge", True, (255, 255, 255))
+            title = self.font.render("Edge", True, WHITE)
             screen.blit(title, (self.x + 10, self.y + 10))
             
             # Label row
-            label_text = self.font.render("Label:", True, (200, 200, 200))
+            label_text = self.font.render("Label:", True, BRUSHED_METAL)
             screen.blit(label_text, (self.x + 10, self.y + 40))
             if self.label_box:
                 self.label_box.draw(screen)
             
             # Source (read-only)
             source_y = self.y + 90
-            source_text = self.font.render(f"Source: {self.current_edge.source.label}", True, (180, 180, 180))
+            source_text = self.font.render(f"Source: {self.current_edge.source.label}", True, BRAINSTEM_GRAY)
             screen.blit(source_text, (self.x + 15, source_y))
             
             # Target (read-only)
             target_y = self.y + 120
-            target_text = self.font.render(f"Target: {self.current_edge.target.label}", True, (180, 180, 180))
+            target_text = self.font.render(f"Target: {self.current_edge.target.label}", True, BRAINSTEM_GRAY)
             screen.blit(target_text, (self.x + 15, target_y))
             
         else:
 
             # Title
-            title = self.font.render(self.current_node.node_type, True, (255, 255, 255))
+            title = self.font.render(self.current_node.node_type, True, WHITE)
             screen.blit(title, (self.x + 10, self.y + 10))
             
             # Label row
-            label_text = self.font.render("Label:", True, (200, 200, 200))
+            label_text = self.font.render("Label:", True, BRUSHED_METAL)
             screen.blit(label_text, (self.x + 10, self.y + 40))
             if self.label_box:
                 self.label_box.draw(screen)
             
             # Properties section title
             y_offset = self.y + 85
-            props_title = self.font.render("Properties:", True, (200, 200, 200))
+            props_title = self.font.render("Properties:", True, BRUSHED_METAL)
             screen.blit(props_title, (self.x + 10, y_offset))
             y_offset += 30
             
             # Gender (read-only)
             if self.gender_value:
                 gender_y = self.y + 175
-                gender_text = self.font.render(f"Gender: {self.gender_value}", True, (180, 180, 180))
+                gender_text = self.font.render(f"Gender: {self.gender_value}", True, BRAINSTEM_GRAY)
                 screen.blit(gender_text, (self.x + 15, gender_y))
             
             # Property text boxes
             for key, box in self.property_boxes.items():
                 # Draw label
                 key_display = key.replace('_', ' ').title()
-                key_text = self.font_small.render(f"{key_display}:", True, (180, 180, 180))
+                key_text = self.font_small.render(f"{key_display}:", True, BRAINSTEM_GRAY)
                 screen.blit(key_text, (self.x + 15, box.rect.y + 6))
                 # Draw text box
                 box.draw(screen)
             
             # Notes section
             notes_y = self.y + 250
-            notes_title = self.font.render("Notes:", True, (200, 200, 200))
+            notes_title = self.font.render("Notes:", True, BRUSHED_METAL)
             screen.blit(notes_title, (self.x + 10, notes_y))
             
             if self.notes_box:
