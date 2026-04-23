@@ -273,7 +273,7 @@ class Canvas:
             else:
                 start_intersect = start
             
-            pygame.draw.line(self.screen, (200, 200, 200), start_intersect, self.edge_temp_end, 2)
+            pygame.draw.line(self.screen, BRUSHED_METAL, start_intersect, self.edge_temp_end, 2)
 
         for edge in self.graph.edges:
             edge.draw(self.screen, self.camera)
