@@ -1,7 +1,10 @@
 import json
 import os
-from tkinter import filedialog
 import pygame
+
+from entities import *
+from tkinter import filedialog
+from core.edge import Edge
 
 def save_graph(nodes, edges, camera):
     # Ask for file location
@@ -72,8 +75,8 @@ def load_graph(canvas):
         data = json.load(f)
     
     # Clear current graph
-    canvas.nodes.clear()
-    canvas.edges.clear()
+    canvas.graph.nodes.clear()
+    canvas.graph.edges.clear()
     canvas.selected_node = None
     canvas.selected_edge = None
     
@@ -86,15 +89,6 @@ def load_graph(canvas):
     # Dictionary to map saved ids to new node objects
     node_map = {}
     
-    # Import entity classes
-    from entities.person import Person
-    from entities.email import Email
-    from entities.phone import Phone
-    from entities.organization import Organization
-    from entities.document import Document
-    from entities.database import Database
-    from entities.social_media import SocialMedia
-    
     entity_classes = {
         "Person": Person,
         "Email": Email,
@@ -102,7 +96,9 @@ def load_graph(canvas):
         "Organization": Organization,
         "Document": Document,
         "Database": Database,
-        "SocialMedia": SocialMedia
+        "SocialMedia": SocialMedia,
+        "Location":Location,
+        "Device":Device
     }
     
     # Create nodes
@@ -126,17 +122,17 @@ def load_graph(canvas):
             # Restore notes
             new_node.notes = node_data.get("notes", "")
             
-            canvas.nodes.append(new_node)
+            canvas.graph.nodes.append(new_node)
             node_map[node_data["id"]] = new_node
     
     # Create edges
-    from core.edge import Edge
+    
     for edge_data in data["edges"]:
         source = node_map.get(edge_data["source_id"])
         target = node_map.get(edge_data["target_id"])
         
         if source and target:
             new_edge = Edge(edge_data["id"], source, target, edge_data["label"])
-            canvas.edges.append(new_edge)
+            canvas.graph.edges.append(new_edge)
     
     return True
