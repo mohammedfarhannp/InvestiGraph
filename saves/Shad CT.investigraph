@@ -1,9 +1,9 @@
 {
   "version": "1.0",
   "camera": {
-    "x": -64,
-    "y": -129,
-    "zoom": 1.2100000000000002
+    "x": 97,
+    "y": -90,
+    "zoom": 0.9090909090909091
   },
   "nodes": [
     {
@@ -49,6 +49,21 @@
         "associated_with": []
       },
       "notes": ""
+    },
+    {
+      "id": "Person (Female)_3",
+      "type": "Person",
+      "label": "??",
+      "x": 514.25,
+      "y": 647.35,
+      "properties": {
+        "name": "Person (Female)",
+        "gender": "female",
+        "email": null,
+        "phone": null
+      },
+      "notes": "",
+      "gender": "female"
     }
   ],
   "edges": [
@@ -63,6 +78,12 @@
       "source_id": "Person (Male)_0",
       "target_id": "Social Media_2",
       "label": "Has Github"
+    },
+    {
+      "id": "edge_2",
+      "source_id": "Person (Male)_0",
+      "target_id": "Person (Female)_3",
+      "label": "??"
     }
   ]
 }
