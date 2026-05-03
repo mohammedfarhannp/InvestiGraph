@@ -1,18 +1,18 @@
 // src/settings.rs
 
+#![allow(dead_code)]
 // Window
 pub const SCREEN_WIDTH : f32 = 1000.0;
 pub const SCREEN_HEIGHT : f32 = 600.0;
 
 // Grid
 pub const GRID_COLOR : (u8, u8, u8) = (50, 50, 55);
-pub const GRID_SPACING: f32 = 50.0
+pub const GRID_SPACING: f32 = 50.0;
 
 // Background
 pub const BACKGROUND_COLOR: (u8, u8, u8) = (30, 30, 35);
 
 // Application
-pub const APPLICATION_TITLE: &str = "InvestiGraph";
 pub const FPS: u32 = 60;
 
 // Node Colors
@@ -33,19 +33,18 @@ pub const DEFAULT_FONT_SIZE: f32 = 12.0;
 pub const DEFAULT_NODE_COLOR: (u8, u8, u8) = (150, 150, 150);
 
 // Icon Paths
-pub const ICON_PATH : &str = "assets/icons/";
-
-pub const DATABASE_ICON : &str = concat!(ICON_PATH, "Database.png");
-pub const DEVICE_ICON : &str = concat!(ICON_PATH, "Device.png");
-pub const DOCUMENT_ICON : &str = concat!(ICON_PATH, "Document.png");
-pub const EMAIL_ICON : &str = concat!(ICON_PATH, "Email.png");
-pub const LOCATION_ICON : &str = concat!(ICON_PATH, "Location.png");
-pub const ORGANIZATION_ICON : &str = concat!(ICON_PATH, "Organization.png");
-pub const PHONE_ICON : &str = concat!(ICON_PATH, "Phone.png");
-pub const SOCIAL_MEDIA_ICON : &str = concat!(ICON_PATH, "Social_Media.png");
-pub const PERSON_MALE_ICON : &str = concat!(ICON_PATH, "male.png");
-pub const PERSON_FEMALE_ICON : &str = concat!(ICON_PATH, "female.png");
-pub const TRASH_ICON : &str = concat!(ICON_PATH, "trash.png");
+pub const ICON_PATH: &str = "assets/icons/";
+pub const DATABASE_ICON: &str = "assets/icons/Database.png";
+pub const DEVICE_ICON: &str = "assets/icons/Device.png";
+pub const DOCUMENT_ICON: &str = "assets/icons/Document.png";
+pub const EMAIL_ICON: &str = "assets/icons/Email.png";
+pub const LOCATION_ICON: &str = "assets/icons/Location.png";
+pub const ORGANIZATION_ICON: &str = "assets/icons/Organization.png";
+pub const PHONE_ICON: &str = "assets/icons/Phone.png";
+pub const SOCIAL_MEDIA_ICON: &str = "assets/icons/Social_Media.png";
+pub const PERSON_MALE_ICON: &str = "assets/icons/male.png";
+pub const PERSON_FEMALE_ICON: &str = "assets/icons/female.png";
+pub const TRASH_ICON: &str = "assets/icons/trash.png";
 
 // Named Colors (RGB u8)
 pub const BASTILLE: (u8, u8, u8) = (45, 45, 50);
