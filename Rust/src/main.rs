@@ -4,8 +4,7 @@ use macroquad::prelude::*;
 mod settings;
 use settings::*;
 
-
-#[macroquad::main(APPLICATION_TITLE)]
+#[macroquad::main("InvestiGraph")]
 async fn main() {
     request_new_screen_size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
