@@ -1,11 +1,15 @@
 // src/main.rs
 use macroquad::prelude::*;
 
-#[macroquad::main("InvestiGraph")]
+mod settings;
+use settings::rgb();
+
+
+#[macroquad::main(settings::APPLICATION_TITLE)]
 async fn main() {
     loop {
 
-        clear_background(Color::new(30.0/255.0, 30.0/255.0, 35.0/255.0, 1.0));
+        clear_background(rgb(BACKGROUND_COLOR));
 
         if is_key_pressed(KeyCode::Escape) {
             break;
