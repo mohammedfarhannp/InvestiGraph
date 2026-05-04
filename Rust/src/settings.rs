@@ -32,6 +32,9 @@ pub const DEFAULT_NODE_RADIUS: f32 = 30.0;
 pub const DEFAULT_FONT_SIZE: f32 = 12.0;
 pub const DEFAULT_NODE_COLOR: (u8, u8, u8) = (150, 150, 150);
 
+// Ribbon Defaults
+pub const RIBBON_HEIGHT: f32 = 40.0;
+
 // Icon Paths
 pub const ICON_PATH: &str = "assets/icons/";
 pub const DATABASE_ICON: &str = "assets/icons/Database.png";
