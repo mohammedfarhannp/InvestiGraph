@@ -5,6 +5,7 @@ mod settings;
 mod ui;
 
 use ui::camera::Camera;
+use ui::ribbon::Ribbon;
 
 use settings::*;
 
@@ -18,9 +19,14 @@ async fn main() {
     let mut drag_start = (0.0, 0.0);
     let mut drag_start_camera = (0.0, 0.0);
 
+    // Ribbon
+    let mut ribbon = Ribbon::new();
+
     // Main Loop (I guess)
     loop {
         clear_background(rgb(BACKGROUND_COLOR));
+
+        ribbon.draw();
 
         // Draw Grid
         let start_x = (-camera.x / camera.zoom / GRID_SPACING) as i32 -1;
@@ -78,6 +84,7 @@ async fn main() {
             break;
         }
 
+        egui_macroquad::draw();
         next_frame().await;
     }
 
