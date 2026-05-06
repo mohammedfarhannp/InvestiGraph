@@ -112,12 +112,13 @@ impl Ribbon {
             // --- File Dropdown ---
             if self.file_dropdown_visible {
                 egui::Window::new("File")
-                    .fixed_pos(egui::pos2(0.0, 40.0))
+                    .fixed_pos(egui::pos2(0.0, 42.5))
                     .collapsible(false)
                     .resizable(false)
                     .title_bar(false)
+                    .auto_sized()
                     .frame(egui::Frame {
-                        inner_margin: egui::Margin::same(4.0),
+                        inner_margin: egui::Margin::same(0.0),
                         outer_margin: egui::Margin::same(0.0),
                         rounding: egui::Rounding::same(0.0),
                         shadow: egui::epaint::Shadow::NONE,
@@ -125,9 +126,14 @@ impl Ribbon {
                         stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
                     })
                     .show(ctx, |ui| {
-                        ui.set_min_width(120.0);
+                        let width = 120.0;
+                        ui.set_width(width);
+                        ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 0.0);
+                        ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 6.0);
                         for item in &["New", "Save", "Load"] {
-                            if ui.button(*item).clicked() {
+                            let btn = egui::Button::new(*item)
+                                .min_size(egui::Vec2::new(width, 28.0));
+                            if ui.add(btn).clicked() {
                                 println!("{}", item);
                                 self.file_dropdown_visible = false;
                             }
@@ -138,12 +144,12 @@ impl Ribbon {
             // --- Add Node Dropdown ---
             if self.add_node_dropdown_visible {
                 egui::Window::new("Add Node")
-                    .fixed_pos(egui::pos2(65.0, 40.0))
+                    .fixed_pos(egui::pos2(65.0, 42.5))
                     .collapsible(false)
                     .resizable(false)
                     .title_bar(false)
                     .frame(egui::Frame {
-                        inner_margin: egui::Margin::same(4.0),
+                        inner_margin: egui::Margin::same(0.0),
                         outer_margin: egui::Margin::same(0.0),
                         rounding: egui::Rounding::same(0.0),
                         shadow: egui::epaint::Shadow::NONE,
@@ -151,14 +157,21 @@ impl Ribbon {
                         stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
                     })
                     .show(ctx, |ui| {
-                        ui.set_min_width(160.0);
+                        let width = 175.0;
+
+                        ui.set_width(width);
+                        ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 0.0);
+                        ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 6.0);
+
                         let node_types = [
                             "Person (Male)", "Person (Female)", "Organization",
                             "Email", "Phone", "Document", "Database",
                             "Social Media", "Location", "Device"
                         ];
                         for node_type in node_types {
-                            if ui.button(node_type).clicked() {
+                            let btn = egui::Button::new(node_type)
+                                .min_size(egui::Vec2::new(width, 28.0));
+                            if ui.add(btn).clicked() {
                                 println!("Selected: {}", node_type);
                                 self.add_node_dropdown_visible = false;
                             }
