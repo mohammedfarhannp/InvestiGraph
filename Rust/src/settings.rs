@@ -76,3 +76,8 @@ pub fn rgb(rgb: (u8, u8, u8)) -> macroquad::color::Color {
         1.0,
     )
 }
+
+// Helper to convert settings (u8, u8, u8) to egui Color32
+pub fn egui_rgb(color: (u8, u8, u8)) -> egui::Color32 {
+    egui::Color32::from_rgb(color.0, color.1, color.2)
+}
