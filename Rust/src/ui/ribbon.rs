@@ -29,7 +29,7 @@ impl Ribbon {
             style.visuals.widgets.inactive = egui::style::WidgetVisuals {
                 bg_fill: egui::Color32::from_rgb(45, 45, 50),
                 weak_bg_fill: egui::Color32::from_rgb(45, 45, 50),
-                bg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
+                bg_stroke: egui::Stroke::NONE,
                 rounding: egui::Rounding::same(0.0),  // sharp corners like Python version
                 fg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(220, 220, 220)),
                 expansion: 2.0,
@@ -77,7 +77,7 @@ impl Ribbon {
                     ui.horizontal(|ui| {
                         // File button
                         let file_btn = egui::Button::new("File")
-                            .min_size(egui::Vec2::new(60.0, 28.0));
+                            .min_size(egui::Vec2::new(60.0, 38.0));
                         if ui.add(file_btn).clicked() {
                             self.file_dropdown_visible = !self.file_dropdown_visible;
                             self.add_node_dropdown_visible = false;
@@ -85,7 +85,7 @@ impl Ribbon {
 
                         // Add Node button
                         let add_btn = egui::Button::new("Add Node")
-                            .min_size(egui::Vec2::new(80.0, 28.0));
+                            .min_size(egui::Vec2::new(80.0, 38.0));
                         if ui.add(add_btn).clicked() {
                             self.add_node_dropdown_visible = !self.add_node_dropdown_visible;
                             self.file_dropdown_visible = false;
@@ -93,7 +93,7 @@ impl Ribbon {
 
                         // Help button
                         let help_btn = egui::Button::new("Help")
-                            .min_size(egui::Vec2::new(55.0, 28.0));
+                            .min_size(egui::Vec2::new(55.0, 38.0));
                         if ui.add(help_btn).clicked() {
                             println!("Help clicked!");
                         }
@@ -101,7 +101,7 @@ impl Ribbon {
                         // Spacer pushes trash icon to right
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             let trash_btn = egui::Button::new("🗑")
-                                .min_size(egui::Vec2::new(40.0, 28.0));
+                                .min_size(egui::Vec2::new(40.0, 38.0));
                             if ui.add(trash_btn).clicked() {
                                 println!("Delete clicked");
                             }
