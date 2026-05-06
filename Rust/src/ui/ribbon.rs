@@ -1,6 +1,10 @@
 // src/ui/ribbon.rs
 use macroquad::prelude::*;
 use egui_macroquad::{ui, egui};
+use crate::settings::{
+    self, RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO,
+    IN_THE_DARK, WESTCHESTER_GRAY, BRAINSTEM_GRAY, VULCAN, WHITE, egui_rgb,
+};
 
 pub struct Ribbon {
     pub height: f32,
@@ -11,7 +15,7 @@ pub struct Ribbon {
 impl Ribbon {
     pub fn new() -> Self {
         Self {
-            height: 40.0,
+            height: RIBBON_HEIGHT,
             add_node_dropdown_visible: false,
             file_dropdown_visible: false,
         }
@@ -19,63 +23,59 @@ impl Ribbon {
 
     pub fn draw(&mut self) {
         ui(|ctx| {
-            // --- Create a fully custom style ---
             let mut style = (*ctx.style()).clone();
 
             // Text
-            style.visuals.override_text_color = Some(egui::Color32::from_rgb(220, 220, 220));
+            style.visuals.override_text_color = Some(egui_rgb(GAINSBORO));
 
             // Widget visuals — inactive, hovered, active
             style.visuals.widgets.inactive = egui::style::WidgetVisuals {
-                bg_fill: egui::Color32::from_rgb(45, 45, 50),
-                weak_bg_fill: egui::Color32::from_rgb(45, 45, 50),
+                bg_fill: egui_rgb(BASTILLE),
+                weak_bg_fill: egui_rgb(BASTILLE),
                 bg_stroke: egui::Stroke::NONE,
-                rounding: egui::Rounding::same(0.0),  // sharp corners like Python version
-                fg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(220, 220, 220)),
+                rounding: egui::Rounding::same(0.0),
+                fg_stroke: egui::Stroke::new(1.0, egui_rgb(GAINSBORO)),
                 expansion: 2.0,
             };
 
             style.visuals.widgets.hovered = egui::style::WidgetVisuals {
-                bg_fill: egui::Color32::from_rgb(70, 70, 75),
-                weak_bg_fill: egui::Color32::from_rgb(70, 70, 75),
-                bg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(120, 120, 120)),
+                bg_fill: egui_rgb(IN_THE_DARK),
+                weak_bg_fill: egui_rgb(IN_THE_DARK),
+                bg_stroke: egui::Stroke::new(1.0, egui_rgb(WESTCHESTER_GRAY)),
                 rounding: egui::Rounding::same(0.0),
-                fg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(255, 255, 255)),
+                fg_stroke: egui::Stroke::new(1.0, egui_rgb(WHITE)),
                 expansion: 2.0,
             };
 
             style.visuals.widgets.active = egui::style::WidgetVisuals {
-                bg_fill: egui::Color32::from_rgb(100, 100, 105),
-                weak_bg_fill: egui::Color32::from_rgb(100, 100, 105),
-                bg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(160, 160, 160)),
+                bg_fill: egui_rgb(WATER_OUZEL),
+                weak_bg_fill: egui_rgb(WATER_OUZEL),
+                bg_stroke: egui::Stroke::new(1.0, egui_rgb(BRAINSTEM_GRAY)),
                 rounding: egui::Rounding::same(0.0),
-                fg_stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(255, 255, 255)),
+                fg_stroke: egui::Stroke::new(1.0, egui_rgb(WHITE)),
                 expansion: 2.0,
             };
 
-            // Panel framing — border on the ribbon
             style.visuals.window_rounding = egui::Rounding::same(0.0);
             style.visuals.striped = false;
 
-            // Spacing
-            style.spacing.item_spacing = egui::Vec2::new(2.0, 0.0);  // small gap between buttons
-            style.spacing.button_padding = egui::Vec2::new(12.0, 6.0); // roomier buttons
+            style.spacing.item_spacing = egui::Vec2::new(2.0, 0.0);
+            style.spacing.button_padding = egui::Vec2::new(12.0, 6.0);
 
             ctx.set_style(style);
 
-            // --- Ribbon panel with border ---
+            // --- Ribbon panel ---
             egui::TopBottomPanel::top("ribbon")
                 .frame(egui::Frame {
                     inner_margin: egui::Margin::symmetric(2.0, 2.0),
                     outer_margin: egui::Margin::same(0.0),
                     rounding: egui::Rounding::same(0.0),
                     shadow: egui::epaint::Shadow::NONE,
-                    fill: egui::Color32::from_rgb(45, 45, 50),
-                    stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
+                    fill: egui_rgb(BASTILLE),
+                    stroke: egui::Stroke::new(1.0, egui_rgb(WATER_OUZEL)),
                 })
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
-                        // File button
                         let file_btn = egui::Button::new("File")
                             .min_size(egui::Vec2::new(60.0, 38.0));
                         if ui.add(file_btn).clicked() {
@@ -83,7 +83,6 @@ impl Ribbon {
                             self.add_node_dropdown_visible = false;
                         }
 
-                        // Add Node button
                         let add_btn = egui::Button::new("Add Node")
                             .min_size(egui::Vec2::new(80.0, 38.0));
                         if ui.add(add_btn).clicked() {
@@ -91,14 +90,12 @@ impl Ribbon {
                             self.file_dropdown_visible = false;
                         }
 
-                        // Help button
                         let help_btn = egui::Button::new("Help")
                             .min_size(egui::Vec2::new(55.0, 38.0));
                         if ui.add(help_btn).clicked() {
                             println!("Help clicked!");
                         }
 
-                        // Spacer pushes trash icon to right
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             let trash_btn = egui::Button::new("🗑")
                                 .min_size(egui::Vec2::new(40.0, 38.0));
@@ -122,8 +119,8 @@ impl Ribbon {
                         outer_margin: egui::Margin::same(0.0),
                         rounding: egui::Rounding::same(0.0),
                         shadow: egui::epaint::Shadow::NONE,
-                        fill: egui::Color32::from_rgb(55, 55, 60),
-                        stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
+                        fill: egui_rgb(VULCAN),
+                        stroke: egui::Stroke::new(1.0, egui_rgb(WATER_OUZEL)),
                     })
                     .show(ctx, |ui| {
                         let width = 120.0;
@@ -148,17 +145,17 @@ impl Ribbon {
                     .collapsible(false)
                     .resizable(false)
                     .title_bar(false)
+                    .auto_sized()
                     .frame(egui::Frame {
                         inner_margin: egui::Margin::same(0.0),
                         outer_margin: egui::Margin::same(0.0),
                         rounding: egui::Rounding::same(0.0),
                         shadow: egui::epaint::Shadow::NONE,
-                        fill: egui::Color32::from_rgb(55, 55, 60),
-                        stroke: egui::Stroke::new(1.0, egui::Color32::from_rgb(80, 80, 85)),
+                        fill: egui_rgb(VULCAN),
+                        stroke: egui::Stroke::new(1.0, egui_rgb(WATER_OUZEL)),
                     })
                     .show(ctx, |ui| {
                         let width = 175.0;
-
                         ui.set_width(width);
                         ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 0.0);
                         ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 6.0);
