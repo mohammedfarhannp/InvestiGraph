@@ -33,7 +33,7 @@ pub const DEFAULT_FONT_SIZE: f32 = 12.0;
 pub const DEFAULT_NODE_COLOR: (u8, u8, u8) = (150, 150, 150);
 
 // Ribbon Defaults
-pub const RIBBON_HEIGHT: f32 = 40.0;
+pub const RIBBON_HEIGHT: f32 = 50.0;
 pub const RIBBON_BG : (u8, u8, u8) = (45, 45, 50);
 pub const RIBBON_BORDER: (u8, u8, u8) = (80, 80, 85);
 pub const BUTTON_TEXT: (u8, u8, u8) = (220, 220, 220);
