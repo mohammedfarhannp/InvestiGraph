@@ -2,7 +2,7 @@
 use macroquad::prelude::*;
 use egui_macroquad::{ui, egui};
 use crate::settings::{
-    self, RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO,
+    RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO, TRASH_ICON,
     IN_THE_DARK, WESTCHESTER_GRAY, BRAINSTEM_GRAY, VULCAN, WHITE, egui_rgb,
 };
 
@@ -41,7 +41,7 @@ impl Ribbon {
             style.visuals.widgets.hovered = egui::style::WidgetVisuals {
                 bg_fill: egui_rgb(IN_THE_DARK),
                 weak_bg_fill: egui_rgb(IN_THE_DARK),
-                bg_stroke: egui::Stroke::new(1.0, egui_rgb(WESTCHESTER_GRAY)),
+                bg_stroke: egui::Stroke::NONE,
                 rounding: egui::Rounding::same(0.0),
                 fg_stroke: egui::Stroke::new(1.0, egui_rgb(WHITE)),
                 expansion: 2.0,
@@ -97,11 +97,29 @@ impl Ribbon {
                         }
 
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            let trash_btn = egui::Button::new("🗑")
-                                .min_size(egui::Vec2::new(40.0, 38.0));
-                            if ui.add(trash_btn).clicked() {
+                            let img_data = macroquad::prelude::Image::from_file_with_format(
+                                &std::fs::read(TRASH_ICON).expect("Failed to read trash icon"),
+                                Some(image::ImageFormat::Png),
+                            );
+                            let raw_bytes: Vec<u8> = img_data
+                                .get_image_data()
+                                .iter()
+                                .flat_map(|pixel| pixel.to_vec())
+                                .collect();
+                            let color_img = egui::ColorImage::from_rgba_unmultiplied(
+                                [img_data.width() as usize, img_data.height() as usize],
+                                &raw_bytes,
+                            );
+                            let trash_texture = ctx.load_texture("trash", color_img, egui::TextureOptions::default());
+                        
+                            let trash_response = ui.add(
+                                egui::ImageButton::new(trash_texture.id(), egui::Vec2::new(15.0, 15.0))
+                            );
+                            
+                            if trash_response.clicked() {
                                 println!("Delete clicked");
                             }
+                        
                         });
                     });
                 });
