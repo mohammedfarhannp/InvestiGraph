@@ -5,11 +5,13 @@ use crate::settings::{
     RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO, TRASH_ICON,
     IN_THE_DARK, WESTCHESTER_GRAY, BRAINSTEM_GRAY, VULCAN, WHITE, egui_rgb,
 };
+use crate::core::node::EntityType;
 
 pub struct Ribbon {
     pub height: f32,
     pub add_node_dropdown_visible: bool,
     pub file_dropdown_visible: bool,
+    pub selected_entity_type: Option<EntityType>,
 }
 
 impl Ribbon {
@@ -18,6 +20,7 @@ impl Ribbon {
             height: RIBBON_HEIGHT,
             add_node_dropdown_visible: false,
             file_dropdown_visible: false,
+            selected_entity_type: None,
         }
     }
 
@@ -197,7 +200,19 @@ impl Ribbon {
                             );
 
                             if response.clicked() {
-                                println!("Selected: {}", node_type);
+                                self.selected_entity_type = Some(match node_type {
+                                    "Person (Male)" => EntityType::PersonMale,
+                                    "Person (Female)" => EntityType::PersonFemale,
+                                    "Organization" => EntityType::Organization,
+                                    "Email" => EntityType::Email,
+                                    "Phone" => EntityType::Phone,
+                                    "Document" => EntityType::Document,
+                                    "Database" => EntityType::Database,
+                                    "Social Media" => EntityType::SocialMedia,
+                                    "Location" => EntityType::Location,
+                                    "Device" => EntityType::Device,
+                                    _ => return,
+                                });
                                 self.add_node_dropdown_visible = false;
                             }
                         }
