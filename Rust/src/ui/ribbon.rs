@@ -146,9 +146,14 @@ impl Ribbon {
                         ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 0.0);
                         ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 6.0);
                         for item in &["New", "Save", "Load"] {
-                            let btn = egui::Button::new(*item)
-                                .min_size(egui::Vec2::new(width, 28.0));
-                            if ui.add(btn).clicked() {
+                            let response = ui.add_sized(
+                                egui::Vec2::new(width, 28.0),
+                                egui::Label::new(
+                                    egui::RichText::new(*item).size(14.0)
+                                )
+                                .sense(egui::Sense::click())
+                            );
+                            if response.clicked() {
                                 println!("{}", item);
                                 self.file_dropdown_visible = false;
                             }
