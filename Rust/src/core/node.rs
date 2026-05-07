@@ -32,21 +32,19 @@ impl EntityType {
     }
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Node {
     pub id: u64,
     pub entity_type: EntityType,
     pub x: f32,
     pub y: f32,
-    pub label: String, 
-    pub properties: NodeProperties,
+    pub label: String,
     pub notes: String,
     pub radius: f32,
 }
 
 impl Node {
-    pub fn new() -> Self {
+    pub fn new(id: u64, entity_type: EntityType, x: f32, y:f32, radius:f32) -> Self {
         Self {
             id,
             entity_type,
