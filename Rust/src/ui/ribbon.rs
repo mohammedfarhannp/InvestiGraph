@@ -12,6 +12,7 @@ pub struct Ribbon {
     pub add_node_dropdown_visible: bool,
     pub file_dropdown_visible: bool,
     pub selected_entity_type: Option<EntityType>,
+    close_pending: bool,
 }
 
 impl Ribbon {
@@ -21,6 +22,7 @@ impl Ribbon {
             add_node_dropdown_visible: false,
             file_dropdown_visible: false,
             selected_entity_type: None,
+            close_pending: false,
         }
     }
 
@@ -66,6 +68,36 @@ impl Ribbon {
             style.spacing.button_padding = egui::Vec2::new(12.0, 6.0);
 
             ctx.set_style(style);
+
+            // Close dropdowns when clicking on canvas (deferred by one frame)
+            if self.close_pending {
+                self.file_dropdown_visible = false;
+                self.add_node_dropdown_visible = false;
+                self.close_pending = false;
+            }
+            if ctx.input(|i| i.pointer.button_clicked(egui::PointerButton::Primary)) {
+                let pointer_pos = ctx.input(|i| i.pointer.hover_pos());
+                if let Some(pos) = pointer_pos {
+                    let below_ribbon = pos.y > self.height + 5.0;
+                    let mut clicking_on_dropdown = false;
+
+                    // Only check the dropdown that's currently visible
+                    if self.file_dropdown_visible {
+                        if pos.x > 0.0 && pos.x < 120.0 && pos.y > 40.0 && pos.y < 130.0 {
+                            clicking_on_dropdown = true;
+                        }
+                    }
+                    if self.add_node_dropdown_visible {
+                        if pos.x > 65.0 && pos.x < 240.0 && pos.y > 40.0 && pos.y < 340.0 {
+                            clicking_on_dropdown = true;
+                        }
+                    }
+
+                    if below_ribbon && !clicking_on_dropdown {
+                        self.close_pending = true;
+                    }
+                }
+            }
 
             // --- Ribbon panel ---
             egui::TopBottomPanel::top("ribbon")
