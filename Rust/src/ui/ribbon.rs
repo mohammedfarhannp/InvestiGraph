@@ -148,10 +148,10 @@ impl Ribbon {
                         for item in &["New", "Save", "Load"] {
                             let response = ui.add_sized(
                                 egui::Vec2::new(width, 28.0),
-                                egui::Label::new(
+                                egui::Button::new(
                                     egui::RichText::new(*item).size(14.0)
                                 )
-                                .sense(egui::Sense::click())
+                                
                             );
                             if response.clicked() {
                                 println!("{}", item);
@@ -189,9 +189,14 @@ impl Ribbon {
                             "Social Media", "Location", "Device"
                         ];
                         for node_type in node_types {
-                            let btn = egui::Button::new(node_type)
-                                .min_size(egui::Vec2::new(width, 28.0));
-                            if ui.add(btn).clicked() {
+                            let response = ui.add_sized(
+                                egui::Vec2::new(width, 28.0),
+                                egui::Button::new(
+                                    egui::RichText::new(node_type).size(14.0)
+                                )
+                            );
+
+                            if response.clicked() {
                                 println!("Selected: {}", node_type);
                                 self.add_node_dropdown_visible = false;
                             }
