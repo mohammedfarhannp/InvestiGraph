@@ -9,6 +9,7 @@ use core::graph::Graph;
 use core::node::EntityType;
 use ui::camera::Camera;
 use ui::ribbon::Ribbon;
+use ui::properties_panel::PropertiesPanel;
 
 use settings::*;
 
@@ -34,11 +35,17 @@ async fn main() {
     // Ribbon
     let mut ribbon = Ribbon::new();
 
+    // Properties Panel
+    let mut properties_panel = PropertiesPanel::new();
+
     // Main Loop (I guess)
     loop {
         clear_background(rgb(BACKGROUND_COLOR));
 
-        ribbon.draw();
+        egui_macroquad::ui(|ctx| {
+            ribbon.draw(ctx);
+            properties_panel.draw(&mut graph, ctx);
+        });
 
         // --- Handle ribbon actions ---
         // Check if a node type was selected from ribbon
