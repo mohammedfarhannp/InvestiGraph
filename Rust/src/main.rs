@@ -151,7 +151,10 @@ async fn main() {
         let (mouse_x, mouse_y) = mouse_position();
         let mouse_in_canvas = mouse_y > RIBBON_HEIGHT;
         let panel_width = 280.0;
-        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width;
+        let properties_bottom = RIBBON_HEIGHT + 320.0;
+        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width 
+            && mouse_y > RIBBON_HEIGHT 
+            && mouse_y < properties_bottom;
 
         // Handle left-click
         if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas && !mouse_on_panel {
