@@ -38,7 +38,7 @@ async fn main() {
     // Properties Panel
     let mut properties_panel = PropertiesPanel::new();
 
-    // Main Loop (I guess)
+    // Main Loop
     loop {
         clear_background(rgb(BACKGROUND_COLOR));
 
@@ -48,7 +48,6 @@ async fn main() {
         });
 
         // --- Handle ribbon actions ---
-        // Check if a node type was selected from ribbon
         if let Some(ref entity_type) = ribbon.selected_entity_type {
             pending_node_type = Some(entity_type.clone());
             ribbon.selected_entity_type = None;
@@ -83,7 +82,6 @@ async fn main() {
                 let (sx, sy) = camera.world_to_screen(s.x, s.y);
                 let (tx, ty) = camera.world_to_screen(t.x, t.y);
 
-                // Line
                 let edge_color = if graph.selected_edge_id == Some(edge.id) {
                     MY_YELLOW
                 } else {
@@ -104,12 +102,11 @@ async fn main() {
             }
         }
 
-        // Edge creation preview (when creating_edge_from is set)
+        // Edge creation preview
         if let Some(source_id) = creating_edge_from {
             if let Some(source) = graph.nodes.iter().find(|n| n.id == source_id) {
                 let (sx, sy) = camera.world_to_screen(source.x, source.y);
                 let (mouse_x, mouse_y) = mouse_position();
-                // Don't draw line into ribbon area
                 if mouse_y > RIBBON_HEIGHT {
                     draw_line(sx, sy, mouse_x, mouse_y, 2.0, rgb(BLUE_GENIE));
                 }
@@ -126,20 +123,17 @@ async fn main() {
                 || sy + screen_radius < RIBBON_HEIGHT
                 || sy - screen_radius > SCREEN_HEIGHT
             {
-                continue; // Skip off-screen nodes
+                continue;
             }
 
             let color = get_entity_color(&node.entity_type);
 
-            // Selection highlight
             if graph.selected_node_id == Some(node.id) {
                 draw_circle(sx, sy, screen_radius + 3.0, rgb(MY_YELLOW));
             }
 
-            // Node body
             draw_circle(sx, sy, screen_radius, rgb(color));
 
-            // Label
             let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
             if !node.label.is_empty() {
                 let text_width = measure_text(&node.label, None, font_size as u16, 1.0).width;
@@ -176,15 +170,12 @@ async fn main() {
             }
 
             if let Some(node_id) = clicked_node {
-                // Node clicked
                 if creating_edge_from.is_some() {
-                    // Completing an edge
                     let source_id = creating_edge_from.take().unwrap();
                     if source_id != node_id {
                         graph.add_edge(source_id, node_id);
                     }
                 } else {
-                    // Select and start dragging
                     graph.select_node(Some(node_id));
                     node_dragging = Some(node_id);
                     if let Some(node) = graph.nodes.iter().find(|n| n.id == node_id) {
@@ -193,10 +184,8 @@ async fn main() {
                 }
                 camera_dragging = false;
             } else if creating_edge_from.is_some() {
-                // Clicked empty space while creating edge -> cancel
                 creating_edge_from = None;
             } else if pending_node_type.is_some() {
-                // Place new node
                 let entity_type = pending_node_type.take().unwrap();
                 let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
                 graph.select_node(Some(id));
@@ -204,11 +193,34 @@ async fn main() {
                 node_drag_offset = (0.0, 0.0);
                 camera_dragging = false;
             } else {
-                // Clicked empty space -> deselect
-                graph.clear_selection();
-                camera_dragging = true;
-                drag_start = (mouse_x, mouse_y);
-                drag_start_camera = (camera.x, camera.y);
+                // Check if clicking on an edge
+                let mut clicked_edge = None;
+                for edge in &graph.edges {
+                    let source = graph.nodes.iter().find(|n| n.id == edge.source_id);
+                    let target = graph.nodes.iter().find(|n| n.id == edge.target_id);
+                    if let (Some(s), Some(t)) = (source, target) {
+                        let dist = point_to_segment_distance(
+                            world_x, world_y,
+                            s.x, s.y,
+                            t.x, t.y,
+                        );
+                        let threshold = 10.0 / camera.zoom;
+                        if dist < threshold {
+                            clicked_edge = Some(edge.id);
+                            break;
+                        }
+                    }
+                }
+
+                if let Some(edge_id) = clicked_edge {
+                    graph.select_edge(Some(edge_id));
+                    camera_dragging = false;
+                } else {
+                    graph.clear_selection();
+                    camera_dragging = true;
+                    drag_start = (mouse_x, mouse_y);
+                    drag_start_camera = (camera.x, camera.y);
+                }
             }
         }
 
@@ -233,94 +245,6 @@ async fn main() {
                 creating_edge_from = None;
             }
         }
-
-        // Handle node dragging
-        if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas {
-            let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
-
-            // Ignore clicks on the properties panel
-            let panel_width = 280.0;
-            if mouse_x > SCREEN_WIDTH - panel_width {
-                // Click is on properties panel — don't process as canvas click
-            } else {
-                // ... rest of existing click handling code (the big if-else block)
-                if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas {
-                    let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
-        
-                    // Check if clicking on a node
-                    let mut clicked_node = None;
-                    for node in graph.nodes.iter().rev() {
-                        let dx = world_x - node.x;
-                        let dy = world_y - node.y;
-                        let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
-                        if dx * dx + dy * dy <= hit_radius * hit_radius {
-                            clicked_node = Some(node.id);
-                            break;
-                        }
-                    }
-        
-                    if let Some(node_id) = clicked_node {
-                        // Node clicked
-                        if creating_edge_from.is_some() {
-                            // Completing an edge
-                            let source_id = creating_edge_from.take().unwrap();
-                            if source_id != node_id {
-                                graph.add_edge(source_id, node_id);
-                            }
-                        } else {
-                            // Select and start dragging
-                            graph.select_node(Some(node_id));
-                            node_dragging = Some(node_id);
-                            if let Some(node) = graph.nodes.iter().find(|n| n.id == node_id) {
-                                node_drag_offset = (node.x - world_x, node.y - world_y);
-                            }
-                        }
-                        camera_dragging = false;
-                    } else if creating_edge_from.is_some() {
-                        // Clicked empty space while creating edge -> cancel
-                        creating_edge_from = None;
-                    } else if pending_node_type.is_some() {
-                        // Place new node
-                        let entity_type = pending_node_type.take().unwrap();
-                        let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
-                        graph.select_node(Some(id));
-                        node_dragging = Some(id);
-                        node_drag_offset = (0.0, 0.0);
-                        camera_dragging = false;
-                    } else {
-                        // Clicked empty space -> deselect
-                        graph.clear_selection();
-                        camera_dragging = true;
-                        drag_start = (mouse_x, mouse_y);
-                        drag_start_camera = (camera.x, camera.y);
-                    }
-                }
-        
-                // Handle right-click for edge creation
-                if is_mouse_button_pressed(MouseButton::Right) && mouse_in_canvas {
-                    let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
-        
-                    let mut clicked_node = None;
-                    for node in graph.nodes.iter().rev() {
-                        let dx = world_x - node.x;
-                        let dy = world_y - node.y;
-                        let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
-                        if dx * dx + dy * dy <= hit_radius * hit_radius {
-                            clicked_node = Some(node.id);
-                            break;
-                        }
-                    }
-        
-                    if let Some(node_id) = clicked_node {
-                        creating_edge_from = Some(node_id);
-                    } else {
-                        creating_edge_from = None;
-                    }
-                }
-            }
-        }
-
-        
 
         // Node dragging movement
         if is_mouse_button_down(MouseButton::Left) {
@@ -388,4 +312,23 @@ fn get_entity_color(entity_type: &EntityType) -> (u8, u8, u8) {
         EntityType::Location => COLOR_LOCATION,
         EntityType::Device => COLOR_DEVICE,
     }
+}
+
+/// Distance from point (px, py) to line segment (ax,ay)-(bx,by)
+fn point_to_segment_distance(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32) -> f32 {
+    let ab_x = bx - ax;
+    let ab_y = by - ay;
+    let ap_x = px - ax;
+    let ap_y = py - ay;
+
+    let ab_len_sq = ab_x * ab_x + ab_y * ab_y;
+    if ab_len_sq == 0.0 {
+        return (ap_x * ap_x + ap_y * ap_y).sqrt();
+    }
+
+    let t = ((ap_x * ab_x + ap_y * ab_y) / ab_len_sq).clamp(0.0, 1.0);
+    let closest_x = ax + t * ab_x;
+    let closest_y = ay + t * ab_y;
+
+    ((px - closest_x) * (px - closest_x) + (py - closest_y) * (py - closest_y)).sqrt()
 }
