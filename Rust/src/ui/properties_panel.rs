@@ -26,7 +26,7 @@ impl PropertiesPanel {
 
         egui::Window::new("Properties")
             .fixed_pos(egui::pos2(x, RIBBON_HEIGHT))
-            .fixed_size(egui::Vec2::new(self.width, SCREEN_HEIGHT - RIBBON_HEIGHT))
+            .auto_sized()
             .collapsible(false)
             .resizable(false)
             .title_bar(false)
