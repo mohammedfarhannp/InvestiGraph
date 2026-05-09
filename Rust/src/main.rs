@@ -156,9 +156,11 @@ async fn main() {
         // --- Mouse Interaction ---
         let (mouse_x, mouse_y) = mouse_position();
         let mouse_in_canvas = mouse_y > RIBBON_HEIGHT;
+        let panel_width = 280.0;
+        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width;
 
-        // Handle node dragging
-        if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas {
+        // Handle left-click
+        if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas && !mouse_on_panel {
             let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
 
             // Check if clicking on a node
@@ -211,7 +213,7 @@ async fn main() {
         }
 
         // Handle right-click for edge creation
-        if is_mouse_button_pressed(MouseButton::Right) && mouse_in_canvas {
+        if is_mouse_button_pressed(MouseButton::Right) && mouse_in_canvas && !mouse_on_panel {
             let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
 
             let mut clicked_node = None;
@@ -231,6 +233,94 @@ async fn main() {
                 creating_edge_from = None;
             }
         }
+
+        // Handle node dragging
+        if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas {
+            let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+
+            // Ignore clicks on the properties panel
+            let panel_width = 280.0;
+            if mouse_x > SCREEN_WIDTH - panel_width {
+                // Click is on properties panel — don't process as canvas click
+            } else {
+                // ... rest of existing click handling code (the big if-else block)
+                if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas {
+                    let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+        
+                    // Check if clicking on a node
+                    let mut clicked_node = None;
+                    for node in graph.nodes.iter().rev() {
+                        let dx = world_x - node.x;
+                        let dy = world_y - node.y;
+                        let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
+                        if dx * dx + dy * dy <= hit_radius * hit_radius {
+                            clicked_node = Some(node.id);
+                            break;
+                        }
+                    }
+        
+                    if let Some(node_id) = clicked_node {
+                        // Node clicked
+                        if creating_edge_from.is_some() {
+                            // Completing an edge
+                            let source_id = creating_edge_from.take().unwrap();
+                            if source_id != node_id {
+                                graph.add_edge(source_id, node_id);
+                            }
+                        } else {
+                            // Select and start dragging
+                            graph.select_node(Some(node_id));
+                            node_dragging = Some(node_id);
+                            if let Some(node) = graph.nodes.iter().find(|n| n.id == node_id) {
+                                node_drag_offset = (node.x - world_x, node.y - world_y);
+                            }
+                        }
+                        camera_dragging = false;
+                    } else if creating_edge_from.is_some() {
+                        // Clicked empty space while creating edge -> cancel
+                        creating_edge_from = None;
+                    } else if pending_node_type.is_some() {
+                        // Place new node
+                        let entity_type = pending_node_type.take().unwrap();
+                        let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
+                        graph.select_node(Some(id));
+                        node_dragging = Some(id);
+                        node_drag_offset = (0.0, 0.0);
+                        camera_dragging = false;
+                    } else {
+                        // Clicked empty space -> deselect
+                        graph.clear_selection();
+                        camera_dragging = true;
+                        drag_start = (mouse_x, mouse_y);
+                        drag_start_camera = (camera.x, camera.y);
+                    }
+                }
+        
+                // Handle right-click for edge creation
+                if is_mouse_button_pressed(MouseButton::Right) && mouse_in_canvas {
+                    let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+        
+                    let mut clicked_node = None;
+                    for node in graph.nodes.iter().rev() {
+                        let dx = world_x - node.x;
+                        let dy = world_y - node.y;
+                        let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
+                        if dx * dx + dy * dy <= hit_radius * hit_radius {
+                            clicked_node = Some(node.id);
+                            break;
+                        }
+                    }
+        
+                    if let Some(node_id) = clicked_node {
+                        creating_edge_from = Some(node_id);
+                    } else {
+                        creating_edge_from = None;
+                    }
+                }
+            }
+        }
+
+        
 
         // Node dragging movement
         if is_mouse_button_down(MouseButton::Left) {
