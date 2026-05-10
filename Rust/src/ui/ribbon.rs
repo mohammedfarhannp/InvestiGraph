@@ -21,6 +21,7 @@ pub struct Ribbon {
     pub selected_entity_type: Option<EntityType>,
     close_pending: bool,
     pub pending_file_action: Option<FileAction>,
+    pub pending_delete: bool,
 }
 
 impl Ribbon {
@@ -32,6 +33,7 @@ impl Ribbon {
             selected_entity_type: None,
             close_pending: false,
             pending_file_action: None,
+            pending_delete: false,
         }
     }
 
@@ -160,7 +162,7 @@ impl Ribbon {
                         );
                         
                         if trash_response.clicked() {
-                            println!("Delete clicked");
+                            self.pending_delete = true;
                         }
                     
                     });
