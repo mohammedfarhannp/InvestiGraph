@@ -78,16 +78,8 @@ impl Graph {
         self.selected_edge_id = None;
     }
     
-    pub fn get_selected_node(&self) -> Option<&Node> {
-        self.selected_node_id.and_then(|id| self.nodes.iter().find(|n| n.id == id))
-    }
-
     pub fn get_selected_node_mut(&mut self) -> Option<&mut Node> {
         self.selected_node_id.and_then(|id| self.nodes.iter_mut().find(|n| n.id == id))
-    }
-
-    pub fn get_selected_edge(&self) -> Option<&Edge> {
-        self.selected_edge_id.and_then(|id| self.edges.iter().find(|e| e.id == id))
     }
 
     pub fn get_selected_edge_mut(&mut self) -> Option<&mut Edge> {
