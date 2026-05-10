@@ -9,6 +9,7 @@ pub struct Graph {
     pub selected_node_id: Option<u64>,
     pub selected_edge_id: Option<u64>,
     next_id: u64,
+    pub unsaved_changes: bool,
 }
 
 impl Graph {
@@ -19,6 +20,7 @@ impl Graph {
             selected_node_id: None,
             selected_edge_id: None,
             next_id: 1,
+            unsaved_changes: false,
         }
     }
 
@@ -99,6 +101,11 @@ impl Graph {
             selected_node_id: None,
             selected_edge_id: None,
             next_id,
+            unsaved_changes: false,
         }
+    }
+
+    pub fn mark_changed(&mut self) {
+        self.unsaved_changes = true;
     }
 }
