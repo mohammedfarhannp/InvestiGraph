@@ -42,7 +42,7 @@ impl PropertiesPanel {
                 ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 8.0);
 
                 if let Some(node_id) = graph.selected_node_id {
-                    if let Some(node) = graph.nodes.iter_mut().find(|n| n.id == node_id) {
+                    if let Some(node) = graph.get_selected_node_mut() {
                         // Entity type header
                         ui.heading(
                             egui::RichText::new(node.entity_type.display_name())
@@ -77,7 +77,7 @@ impl PropertiesPanel {
                         );
                     }
                 } else if let Some(edge_id) = graph.selected_edge_id {
-                    if let Some(edge) = graph.edges.iter_mut().find(|e| e.id == edge_id) {
+                    if let Some(edge) = graph.get_selected_edge_mut() {
                         // Edge header
                         ui.heading(
                             egui::RichText::new("Edge")
