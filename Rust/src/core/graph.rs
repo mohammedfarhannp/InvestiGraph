@@ -90,6 +90,10 @@ impl Graph {
         self.selected_edge_id.and_then(|id| self.edges.iter().find(|e| e.id == id))
     }
 
+    pub fn get_selected_edge_mut(&mut self) -> Option<&mut Edge> {
+        self.selected_edge_id.and_then(|id| self.edges.iter_mut().find(|e| e.id == id))
+    }
+
     pub fn next_id(&self) -> u64 {
         self.next_id
     }
