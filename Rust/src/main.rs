@@ -148,23 +148,41 @@ async fn main() {
                 let (sx, sy) = camera.world_to_screen(s.x, s.y);
                 let (tx, ty) = camera.world_to_screen(t.x, t.y);
 
+                // Direction from source to target
+                let dx = tx - sx;
+                let dy = ty - sy;
+                let dist = (dx * dx + dy * dy).sqrt();
+                if dist == 0.0 {
+                    continue;
+                }
+                let nx = dx / dist;
+                let ny = dy / dist;
+
+                // Offset start and end to circumference
+                let start_radius = (s.radius * camera.zoom).max(5.0);
+                let end_radius = (t.radius * camera.zoom).max(5.0);
+                let start_x = sx + nx * start_radius;
+                let start_y = sy + ny * start_radius;
+                let end_x = tx - nx * end_radius;
+                let end_y = ty - ny * end_radius;
+
                 let edge_color = if graph.selected_edge_id == Some(edge.id) {
                     MY_YELLOW
                 } else {
                     GAINSBORO
                 };
-                draw_line(sx, sy, tx, ty, 2.0, rgb(edge_color));
+                let edge_thickness = (2.0 * camera.zoom).max(1.0);
+                draw_line(start_x, start_y, end_x, end_y, edge_thickness, rgb(edge_color));
 
-                // Arrowhead at target
-                let angle = (ty - sy).atan2(tx - sx);
-                let arrow_len = 10.0 * camera.zoom;
+                // Arrowhead at target circumference
+                let arrow_len = (10.0 * camera.zoom).max(5.0);
                 let arrow_angle = std::f32::consts::PI / 6.0;
-                let ax1 = tx - arrow_len * (angle - arrow_angle).cos();
-                let ay1 = ty - arrow_len * (angle - arrow_angle).sin();
-                let ax2 = tx - arrow_len * (angle + arrow_angle).cos();
-                let ay2 = ty - arrow_len * (angle + arrow_angle).sin();
-                draw_line(tx, ty, ax1, ay1, 2.0, rgb(edge_color));
-                draw_line(tx, ty, ax2, ay2, 2.0, rgb(edge_color));
+                let ax1 = end_x - arrow_len * (arrow_angle.cos() * nx - arrow_angle.sin() * ny);
+                let ay1 = end_y - arrow_len * (arrow_angle.cos() * ny + arrow_angle.sin() * nx);
+                let ax2 = end_x - arrow_len * (arrow_angle.cos() * nx + arrow_angle.sin() * ny);
+                let ay2 = end_y - arrow_len * (arrow_angle.cos() * ny - arrow_angle.sin() * nx);
+                draw_line(end_x, end_y, ax1, ay1, edge_thickness, rgb(edge_color));
+                draw_line(end_x, end_y, ax2, ay2, edge_thickness, rgb(edge_color));
             }
         }
 
@@ -174,7 +192,8 @@ async fn main() {
                 let (sx, sy) = camera.world_to_screen(source.x, source.y);
                 let (mouse_x, mouse_y) = mouse_position();
                 if mouse_y > RIBBON_HEIGHT {
-                    draw_line(sx, sy, mouse_x, mouse_y, 2.0, rgb(BLUE_GENIE));
+                    let edge_thickness = (2.0 * camera.zoom).max(1.0);
+                    draw_line(sx, sy, mouse_x, mouse_y, edge_thickness, rgb(BLUE_GENIE));
                 }
             }
         }
