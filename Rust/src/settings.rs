@@ -29,7 +29,7 @@ pub const COLOR_DEVICE: (u8, u8, u8) = (100, 200, 100);
 
 // Node Defaults
 pub const DEFAULT_NODE_RADIUS: f32 = 30.0;
-pub const DEFAULT_FONT_SIZE: f32 = 12.0;
+pub const DEFAULT_FONT_SIZE: f32 = 20.0;
 pub const DEFAULT_NODE_COLOR: (u8, u8, u8) = (150, 150, 150);
 
 // Ribbon Defaults
