@@ -42,16 +42,22 @@ pub fn load_graph() -> Option<(Graph, f32, f32, f32)> {
     let json = std::fs::read_to_string(&path).ok()?;
     let save_data: SaveData = serde_json::from_str(&json).ok()?;
 
-    let mut graph = Graph::from_saved(save_data.nodes, save_data.edges, save_data.next_id);
+    let graph = Graph::from_saved(save_data.nodes, save_data.edges, save_data.next_id);
     Some((graph, save_data.camera_x, save_data.camera_y, save_data.camera_zoom))
 }
 
-pub fn new_graph() -> bool {
-    let result = rfd::MessageDialog::new()
-        .set_title("New Graph")
-        .set_description("Discard current graph and start new?")
+pub fn confirm_new_graph() -> bool {
+    rfd::MessageDialog::new()
+        .set_title("Unsaved Changes")
+        .set_description("You have unsaved changes. Discard them and start a new graph?")
         .set_buttons(rfd::MessageButtons::YesNo)
-        .show();
-    
-    result == rfd::MessageDialogResult::Yes
+        .show() == rfd::MessageDialogResult::Yes
+}
+
+pub fn confirm_discard_changes() -> bool {
+    rfd::MessageDialog::new()
+        .set_title("Unsaved Changes")
+        .set_description("You have unsaved changes. Discard them and load another graph?")
+        .set_buttons(rfd::MessageButtons::YesNo)
+        .show() == rfd::MessageDialogResult::Yes
 }
