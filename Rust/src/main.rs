@@ -84,6 +84,15 @@ async fn main() {
             ribbon.pending_file_action = None;
         }
 
+        if ribbon.pending_delete {
+            if let Some(node_id) = graph.selected_node_id {
+                graph.remove_node(node_id);
+            } else if let Some(edge_id) = graph.selected_edge_id {
+                graph.remove_edge(edge_id);
+            }
+            ribbon.pending_delete = false;
+        }
+
         // Draw Grid
         let start_x = (-camera.x / camera.zoom / GRID_SPACING) as i32 - 1;
         let start_y = (-camera.y / camera.zoom / GRID_SPACING) as i32 - 1;
