@@ -12,6 +12,7 @@ use ui::camera::Camera;
 use ui::ribbon::Ribbon;
 use ui::properties_panel::PropertiesPanel;
 use ui::ribbon::FileAction;
+use utils::assets::AssetManager;
 
 use settings::*;
 
@@ -39,6 +40,9 @@ async fn main() {
 
     // Properties Panel
     let mut properties_panel = PropertiesPanel::new();
+
+    // Asset Manager
+    let asset_manager = AssetManager::new().await;
 
     // Main Loop
     loop {
@@ -173,6 +177,22 @@ async fn main() {
             }
 
             draw_circle(sx, sy, screen_radius, rgb(color));
+
+            // Draw icon
+            let icon_name = get_icon_name(&node.entity_type);
+            if let Some(texture) = asset_manager.get_icon(icon_name) {
+                let icon_size = screen_radius * 0.90;
+                draw_texture_ex(
+                    *texture,
+                    sx - icon_size / 2.0,
+                    sy - icon_size / 2.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(Vec2::new(icon_size, icon_size)),
+                        ..Default::default()
+                    },
+                );
+            }
 
             let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
             if !node.label.is_empty() {
@@ -354,6 +374,21 @@ fn get_entity_color(entity_type: &EntityType) -> (u8, u8, u8) {
         EntityType::SocialMedia => COLOR_SOCIAL_MEDIA,
         EntityType::Location => COLOR_LOCATION,
         EntityType::Device => COLOR_DEVICE,
+    }
+}
+
+fn get_icon_name(entity_type: &EntityType) -> &str {
+    match entity_type {
+        EntityType::PersonMale => "PersonMale",
+        EntityType::PersonFemale => "PersonFemale",
+        EntityType::Organization => "Organization",
+        EntityType::Email => "Email",
+        EntityType::Phone => "Phone",
+        EntityType::Document => "Document",
+        EntityType::Database => "Database",
+        EntityType::SocialMedia => "SocialMedia",
+        EntityType::Location => "Location",
+        EntityType::Device => "Device",
     }
 }
 
