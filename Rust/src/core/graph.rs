@@ -87,4 +87,18 @@ impl Graph {
     pub fn get_selected_edge(&self) -> Option<&Edge> {
         self.selected_edge_id.and_then(|id| self.edges.iter().find(|e| e.id == id))
     }
+
+    pub fn next_id(&self) -> u64 {
+        self.next_id
+    }
+
+    pub fn from_saved(nodes: Vec<Node>, edges: Vec<Edge>, next_id: u64) -> Self {
+        Self {
+            nodes, 
+            edges,
+            selected_node_id: None,
+            selected_edge_id: None,
+            next_id,
+        }
+    }
 }
