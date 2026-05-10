@@ -4,12 +4,14 @@ use macroquad::prelude::*;
 mod core;
 mod settings;
 mod ui;
+mod utils;
 
 use core::graph::Graph;
 use core::node::EntityType;
 use ui::camera::Camera;
 use ui::ribbon::Ribbon;
 use ui::properties_panel::PropertiesPanel;
+use ui::ribbon::FileAction;
 
 use settings::*;
 
@@ -51,6 +53,35 @@ async fn main() {
         if let Some(ref entity_type) = ribbon.selected_entity_type {
             pending_node_type = Some(entity_type.clone());
             ribbon.selected_entity_type = None;
+        }
+
+        if let Some(ref action) = ribbon.pending_file_action {
+            match action {
+                FileAction::New => {
+                    graph = Graph::new();
+                    pending_node_type = None;
+                    creating_edge_from = None;
+                }
+                FileAction::Save => {
+                    utils::file_io::save_graph(
+                        &graph,
+                        camera.x,
+                        camera.y,
+                        camera.zoom,
+                    );
+                }
+                FileAction::Load => {
+                    if let Some((loaded_graph, cx, cy, cz)) = utils::file_io::load_graph() {
+                        graph = loaded_graph;
+                        camera.x = cx;
+                        camera.y = cy;
+                        camera.zoom = cz;
+                        pending_node_type = None;
+                        creating_edge_from = None;
+                    }
+                }
+            }
+            ribbon.pending_file_action = None;
         }
 
         // Draw Grid
