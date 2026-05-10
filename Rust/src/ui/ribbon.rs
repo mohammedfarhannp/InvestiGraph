@@ -7,12 +7,20 @@ use crate::settings::{
 };
 use crate::core::node::EntityType;
 
+#[derive(Clone, PartialEq)]
+pub enum FileAction {
+    New,
+    Save,
+    Load,
+}
+
 pub struct Ribbon {
     pub height: f32,
     pub add_node_dropdown_visible: bool,
     pub file_dropdown_visible: bool,
     pub selected_entity_type: Option<EntityType>,
     close_pending: bool,
+    pub pending_file_action: Option<FileAction>,
 }
 
 impl Ribbon {
@@ -23,6 +31,7 @@ impl Ribbon {
             file_dropdown_visible: false,
             selected_entity_type: None,
             close_pending: false,
+            pending_file_action: None,
         }
     }
 
@@ -188,7 +197,12 @@ impl Ribbon {
                             
                         );
                         if response.clicked() {
-                            println!("{}", item);
+                            match *item {
+                                "New" => self.pending_file_action = Some(FileAction::New),
+                                "Save" => self.pending_file_action = Some(FileAction::Save),
+                                "Load" => self.pending_file_action = Some(FileAction::Load),
+                                _ => {}
+                            }
                             self.file_dropdown_visible = false;
                         }
                     }
