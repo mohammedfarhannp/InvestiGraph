@@ -62,9 +62,22 @@ async fn main() {
         if let Some(ref action) = ribbon.pending_file_action {
             match action {
                 FileAction::New => {
-                    graph = Graph::new();
-                    pending_node_type = None;
-                    creating_edge_from = None;
+                    if graph.unsaved_changes {
+                        let confirmed = utils::file_io::confirm_new_graph();
+                        if !confirmed {
+                            ribbon.pending_file_action = None;
+                            // Don't proceed — skip to next frame
+                            // We can't use continue in a match, so set action to None and use a flag
+                        } else {
+                            graph = Graph::new();
+                            pending_node_type = None;
+                            creating_edge_from = None;
+                        }
+                    } else {
+                        graph = Graph::new();
+                        pending_node_type = None;
+                        creating_edge_from = None;
+                    }
                 }
                 FileAction::Save => {
                     utils::file_io::save_graph(
@@ -73,15 +86,22 @@ async fn main() {
                         camera.y,
                         camera.zoom,
                     );
+                    graph.unsaved_changes = false;
                 }
                 FileAction::Load => {
-                    if let Some((loaded_graph, cx, cy, cz)) = utils::file_io::load_graph() {
-                        graph = loaded_graph;
-                        camera.x = cx;
-                        camera.y = cy;
-                        camera.zoom = cz;
-                        pending_node_type = None;
-                        creating_edge_from = None;
+                    let mut should_load = !graph.unsaved_changes;
+                    if graph.unsaved_changes {
+                        should_load = utils::file_io::confirm_discard_changes();
+                    }
+                    if should_load {
+                        if let Some((loaded_graph, cx, cy, cz)) = utils::file_io::load_graph() {
+                            graph = loaded_graph;
+                            camera.x = cx;
+                            camera.y = cy;
+                            camera.zoom = cz;
+                            pending_node_type = None;
+                            creating_edge_from = None;
+                        }
                     }
                 }
             }
@@ -91,8 +111,10 @@ async fn main() {
         if ribbon.pending_delete {
             if let Some(node_id) = graph.selected_node_id {
                 graph.remove_node(node_id);
+                graph.mark_changed();
             } else if let Some(edge_id) = graph.selected_edge_id {
                 graph.remove_edge(edge_id);
+                graph.mark_changed();
             }
             ribbon.pending_delete = false;
         }
@@ -237,6 +259,7 @@ async fn main() {
                     let source_id = creating_edge_from.take().unwrap();
                     if source_id != node_id {
                         graph.add_edge(source_id, node_id);
+                        graph.mark_changed()
                     }
                 } else {
                     graph.select_node(Some(node_id));
@@ -251,6 +274,7 @@ async fn main() {
             } else if pending_node_type.is_some() {
                 let entity_type = pending_node_type.take().unwrap();
                 let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
+                graph.mark_changed();
                 graph.select_node(Some(id));
                 node_dragging = Some(id);
                 node_drag_offset = (0.0, 0.0);
@@ -316,6 +340,7 @@ async fn main() {
                 if let Some(node) = graph.nodes.iter_mut().find(|n| n.id == node_id) {
                     node.x = world_x + node_drag_offset.0;
                     node.y = world_y + node_drag_offset.1;
+                    graph.mark_changed();
                 }
             } else if camera_dragging {
                 let (mx, my) = mouse_position();
@@ -347,8 +372,10 @@ async fn main() {
         if is_key_pressed(KeyCode::Delete) {
             if let Some(node_id) = graph.selected_node_id {
                 graph.remove_node(node_id);
+                graph.mark_changed();
             } else if let Some(edge_id) = graph.selected_edge_id {
                 graph.remove_edge(edge_id);
+                graph.mark_changed();
             }
         }
 
