@@ -1,72 +1,109 @@
 # InvestiGraph
-An investigation graph tool built with Pygame — visualize and connect entities like people, organizations, emails, phones, documents, databases, and social media accounts.
 
-## Screenshots
+A investigation graph tool for mapping relationships between entities. rebuilt with Rust that which is orginally built with python.
 
-![InvestiGraph in action](https://github.com/mohammedfarhannp/InvestiGraph/blob/master/assets/screenshots/Screenshot%202.png)
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
+## Overview
+
+InvestiGraph allows investigators, analysts, and OSINT practitioners to visually map connections between people, organizations, devices, and other entities.
 
 ## Features
 
-- **10 Entity Types** — Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media, Device, Location
-- **Visual Graph** — Drag nodes, create directed edges, pan/zoom canvas
-- **Properties Panel** — Edit labels, properties, and multi-line notes for each node
-- **Edge Labels** — Name your relationships
-- **Save/Load** — Native `.investigraph` file format
-- **Unsaved Changes Tracking** — Never lose work
-- **Zoom-Responsive UI** — Everything scales smoothly
+- **10 Entity Types**: Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media, Location, Device
+- **Interactive Graph**: Pan, zoom, drag nodes, create directed edges
+- **Properties Panel**: Edit labels and notes for nodes and edges
+- **Save/Load**: `.investigraph` JSON format with native file dialogs
+- **Unsaved Changes Tracking**: Prompts before discarding work
+- **Zoom-Responsive**: Nodes, icons, labels, edges, and arrowheads scale with zoom
 
 ## Controls
 
 | Action | Control |
 |--------|---------|
 | Pan canvas | Left-click + drag (empty space) |
-| Zoom | Scroll wheel |
+| Zoom | Scroll wheel (0.4x–2.0x) |
 | Select node/edge | Left-click |
 | Move node | Click + drag selected node |
-| Create edge | Right-click source node → move mouse → right-click target node |
-| Delete selection | Delete key or trash icon |
-| Add node | Click "Add Node" → choose type → click on canvas |
+| Create edge | Right-click source node → right-click target node |
+| Delete selected | Delete key or trash icon |
+| Add node | Add Node dropdown → choose type → click canvas |
+| Save | File → Save |
+| Load | File → Load |
+| New | File → New |
+| Cancel edge/placement | Escape |
 
-## File Menu
+## Entity Colors
 
-- **New** — Clear current graph (prompts to save if unsaved)
-- **Save** — Save to `.investigraph` file
-- **Load** — Load from `.investigraph` file
+| Entity | Color |
+|--------|-------|
+| Person (Male) | Blue |
+| Person (Female) | Pink |
+| Organization | Orange |
+| Email | Green |
+| Phone | Purple |
+| Document | Yellow |
+| Database | Gray |
+| Social Media | Twitter Blue |
+| Location | Teal |
+| Device | Light Green |
 
-## Installation
+## File Format
 
+Saves use `.investigraph` extension (JSON internally). Includes:
+- All nodes and edges
+- Camera position and zoom
+- Labels, notes, and properties
+
+## Building
+
+### Requirements
+- Rust 1.70+
+- Cargo
+
+### Build & Run
 ```bash
-git clone https://github.com/mohammedfarhannp/InvestiGraph.git
-cd InvestiGraph
-pip install -r requirements.txt
-python main.py
+cargo build --release
+cargo run
 ```
 
-## Requirements
+## Dependencies
 
-- Python 3.8+
-- Pygame 2.5+
-- tkinter (included with Python)
+- [macroquad](https://crates.io/crates/macroquad) — Rendering
+- [egui](https://crates.io/crates/egui) — UI framework
+- [egui-macroquad](https://crates.io/crates/egui-macroquad) — egui + macroquad integration
+- [serde](https://crates.io/crates/serde) + [serde_json](https://crates.io/crates/serde_json) — Serialization
+- [rfd](https://crates.io/crates/rfd) — Native file dialogs
+- [image](https://crates.io/crates/image) — Icon loading
 
 ## Project Structure
 
 ```
-InvestiGraph/
-├── core/           # Node, Edge classes
-├── entities/       # Entity types (Person, Email, etc.)
-├── ui/             # Canvas, Camera, Ribbon, Properties Panel
-├── utils/          # File I/O helpers
-├── assets/icons/   # 24x24 PNG icons
-├── saves/          # Default save location
-├── main.py
-└── settings.py
+src/
+├── main.rs              # Entry point, render loop, input handling
+├── settings.rs          # Constants, colors, paths
+├── core/
+│   ├── node.rs          # Node struct, entity types
+│   ├── edge.rs          # Edge struct
+│   ├── graph.rs         # Graph state management
+│   └── mod.rs
+├── ui/
+│   ├── ribbon.rs        # Top toolbar (File, Add Node, Help, Trash)
+│   ├── properties_panel.rs  # Right-side panel for editing
+│   ├── camera.rs        # Pan/zoom camera
+│   └── mod.rs
+└── utils/
+    ├── assets.rs        # Icon texture loading
+    ├── file_io.rs       # Save/Load operations
+    └── mod.rs
 ```
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+GNU General Public License v3.0
 
-## Author
-Mohammed Farhan N P
+## Platform Support
 
+- [x] Windows
+- [ ] Linux
+- [ ] macOS

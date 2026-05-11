@@ -1,0 +1,478 @@
+// src/main.rs
+use macroquad::prelude::*;
+
+mod core;
+mod settings;
+mod ui;
+mod utils;
+
+use core::graph::Graph;
+use core::node::EntityType;
+use ui::camera::Camera;
+use ui::ribbon::Ribbon;
+use ui::properties_panel::PropertiesPanel;
+use ui::ribbon::FileAction;
+use utils::assets::AssetManager;
+
+use settings::*;
+
+#[macroquad::main("InvestiGraph")]
+async fn main() {
+    request_new_screen_size(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    // Graph
+    let mut graph = Graph::new();
+    let mut pending_node_type: Option<EntityType> = None;
+    let mut creating_edge_from: Option<u64> = None;
+
+    // Camera Variables Set!
+    let mut camera = Camera::new();
+    let mut camera_dragging: bool = false;
+    let mut drag_start = (0.0, 0.0);
+    let mut drag_start_camera = (0.0, 0.0);
+
+    // Node dragging
+    let mut node_dragging: Option<u64> = None;
+    let mut node_drag_offset = (0.0, 0.0);
+
+    // Ribbon
+    let mut ribbon = Ribbon::new();
+
+    // Properties Panel
+    let mut properties_panel = PropertiesPanel::new();
+
+    // Asset Manager
+    let asset_manager = AssetManager::new().await;
+
+    // Main Loop
+    loop {
+        clear_background(rgb(BACKGROUND_COLOR));
+
+        egui_macroquad::ui(|ctx| {
+            ribbon.draw(ctx);
+            properties_panel.draw(&mut graph, ctx);
+        });
+
+        // --- Handle ribbon actions ---
+        if let Some(ref entity_type) = ribbon.selected_entity_type {
+            pending_node_type = Some(entity_type.clone());
+            ribbon.selected_entity_type = None;
+        }
+
+        if let Some(ref action) = ribbon.pending_file_action {
+            match action {
+                FileAction::New => {
+                    if graph.unsaved_changes {
+                        let confirmed = utils::file_io::confirm_new_graph();
+                        if !confirmed {
+                            ribbon.pending_file_action = None;
+                            // Don't proceed — skip to next frame
+                            // We can't use continue in a match, so set action to None and use a flag
+                        } else {
+                            graph = Graph::new();
+                            pending_node_type = None;
+                            creating_edge_from = None;
+                        }
+                    } else {
+                        graph = Graph::new();
+                        pending_node_type = None;
+                        creating_edge_from = None;
+                    }
+                }
+                FileAction::Save => {
+                    utils::file_io::save_graph(
+                        &graph,
+                        camera.x,
+                        camera.y,
+                        camera.zoom,
+                    );
+                    graph.unsaved_changes = false;
+                }
+                FileAction::Load => {
+                    let mut should_load = !graph.unsaved_changes;
+                    if graph.unsaved_changes {
+                        should_load = utils::file_io::confirm_discard_changes();
+                    }
+                    if should_load {
+                        if let Some((loaded_graph, cx, cy, cz)) = utils::file_io::load_graph() {
+                            graph = loaded_graph;
+                            camera.x = cx;
+                            camera.y = cy;
+                            camera.zoom = cz;
+                            pending_node_type = None;
+                            creating_edge_from = None;
+                        }
+                    }
+                }
+            }
+            ribbon.pending_file_action = None;
+        }
+
+        if ribbon.pending_delete {
+            if let Some(node_id) = graph.selected_node_id {
+                graph.remove_node(node_id);
+                graph.mark_changed();
+            } else if let Some(edge_id) = graph.selected_edge_id {
+                graph.remove_edge(edge_id);
+                graph.mark_changed();
+            }
+            ribbon.pending_delete = false;
+        }
+
+        // Draw Grid
+        let start_x = (-camera.x / camera.zoom / GRID_SPACING) as i32 - 1;
+        let start_y = (-camera.y / camera.zoom / GRID_SPACING) as i32 - 1;
+
+        let end_x = start_x + (SCREEN_WIDTH / camera.zoom / GRID_SPACING) as i32 + 2;
+        let end_y = start_y + (SCREEN_HEIGHT / camera.zoom / GRID_SPACING) as i32 + 2;
+
+        for i in start_x..end_x {
+            for j in start_y..end_y {
+                let screen_x = i as f32 * GRID_SPACING * camera.zoom + camera.x;
+                let screen_y = j as f32 * GRID_SPACING * camera.zoom + camera.y;
+
+                if screen_x >= -GRID_SPACING
+                    && screen_x <= SCREEN_WIDTH + GRID_SPACING
+                    && screen_y >= RIBBON_HEIGHT
+                {
+                    draw_circle(screen_x, screen_y, 2.0, rgb(GRID_COLOR));
+                }
+            }
+        }
+
+        // Draw edges
+        for edge in &graph.edges {
+            let source = graph.nodes.iter().find(|n| n.id == edge.source_id);
+            let target = graph.nodes.iter().find(|n| n.id == edge.target_id);
+            if let (Some(s), Some(t)) = (source, target) {
+                let (sx, sy) = camera.world_to_screen(s.x, s.y);
+                let (tx, ty) = camera.world_to_screen(t.x, t.y);
+
+                // Direction from source to target
+                let dx = tx - sx;
+                let dy = ty - sy;
+                let dist = (dx * dx + dy * dy).sqrt();
+                if dist == 0.0 {
+                    continue;
+                }
+                let nx = dx / dist;
+                let ny = dy / dist;
+
+                // Offset start and end to circumference
+                let start_radius = (s.radius * camera.zoom).max(5.0);
+                let end_radius = (t.radius * camera.zoom).max(5.0);
+                let start_x = sx + nx * start_radius;
+                let start_y = sy + ny * start_radius;
+                let end_x = tx - nx * end_radius;
+                let end_y = ty - ny * end_radius;
+
+                let edge_color = if graph.selected_edge_id == Some(edge.id) {
+                    MY_YELLOW
+                } else {
+                    GAINSBORO
+                };
+                let edge_thickness = (2.0 * camera.zoom).max(1.0);
+                draw_line(start_x, start_y, end_x, end_y, edge_thickness, rgb(edge_color));
+
+                // Arrowhead at target circumference
+                let arrow_len = (10.0 * camera.zoom).max(5.0);
+                let arrow_angle = std::f32::consts::PI / 6.0;
+                let ax1 = end_x - arrow_len * (arrow_angle.cos() * nx - arrow_angle.sin() * ny);
+                let ay1 = end_y - arrow_len * (arrow_angle.cos() * ny + arrow_angle.sin() * nx);
+                let ax2 = end_x - arrow_len * (arrow_angle.cos() * nx + arrow_angle.sin() * ny);
+                let ay2 = end_y - arrow_len * (arrow_angle.cos() * ny - arrow_angle.sin() * nx);
+                draw_line(end_x, end_y, ax1, ay1, edge_thickness, rgb(edge_color));
+                draw_line(end_x, end_y, ax2, ay2, edge_thickness, rgb(edge_color));
+            
+                // Edge label
+                if !edge.label.is_empty() {
+                    let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
+                    let mid_x = (start_x + end_x) / 2.0;
+                    let mid_y = (start_y + end_y) / 2.0;
+                    // Offset perpendicular to the edge
+                    let offset_x = -ny * (font_size + 4.0);
+                    let offset_y = nx * (font_size + 4.0);
+                    let label_x = mid_x + offset_x;
+                    let label_y = mid_y + offset_y;
+                    let text_width = measure_text(&edge.label, None, font_size as u16, 1.0).width;
+                    draw_text(
+                        &edge.label,
+                        label_x - text_width / 2.0,
+                        label_y,
+                        font_size,
+                        rgb(GAINSBORO),
+                    );
+                }
+            }
+        }
+
+        // Edge creation preview
+        if let Some(source_id) = creating_edge_from {
+            if let Some(source) = graph.nodes.iter().find(|n| n.id == source_id) {
+                let (sx, sy) = camera.world_to_screen(source.x, source.y);
+                let (mouse_x, mouse_y) = mouse_position();
+                if mouse_y > RIBBON_HEIGHT {
+                    let edge_thickness = (2.0 * camera.zoom).max(1.0);
+                    draw_line(sx, sy, mouse_x, mouse_y, edge_thickness, rgb(BLUE_GENIE));
+                }
+            }
+        }
+
+        // Draw nodes
+        for node in &graph.nodes {
+            let (sx, sy) = camera.world_to_screen(node.x, node.y);
+            let screen_radius = (node.radius * camera.zoom).max(5.0);
+
+            if sx + screen_radius < 0.0
+                || sx - screen_radius > SCREEN_WIDTH
+                || sy + screen_radius < RIBBON_HEIGHT
+                || sy - screen_radius > SCREEN_HEIGHT
+            {
+                continue;
+            }
+
+            let color = get_entity_color(&node.entity_type);
+
+            if graph.selected_node_id == Some(node.id) {
+                draw_circle(sx, sy, screen_radius + 3.0, rgb(MY_YELLOW));
+            }
+
+            draw_circle(sx, sy, screen_radius, rgb(color));
+
+            // Draw icon
+            let icon_name = get_icon_name(&node.entity_type);
+            if let Some(texture) = asset_manager.get_icon(icon_name) {
+                let icon_size = screen_radius * 0.90;
+                draw_texture_ex(
+                    *texture,
+                    sx - icon_size / 2.0,
+                    sy - icon_size / 2.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(Vec2::new(icon_size, icon_size)),
+                        ..Default::default()
+                    },
+                );
+            }
+
+            let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
+            if !node.label.is_empty() {
+                let text_width = measure_text(&node.label, None, font_size as u16, 1.0).width;
+                draw_text(
+                    &node.label,
+                    sx - text_width / 2.0,
+                    sy + screen_radius + font_size,
+                    font_size,
+                    rgb(GAINSBORO),
+                );
+            }
+        }
+
+        // --- Mouse Interaction ---
+        let (mouse_x, mouse_y) = mouse_position();
+        let mouse_in_canvas = mouse_y > RIBBON_HEIGHT;
+        let panel_width = 280.0;
+        let properties_bottom = RIBBON_HEIGHT + 320.0;
+        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width 
+            && mouse_y > RIBBON_HEIGHT 
+            && mouse_y < properties_bottom;
+
+        // Handle left-click
+        if is_mouse_button_pressed(MouseButton::Left) && mouse_in_canvas && !mouse_on_panel {
+            let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+
+            // Check if clicking on a node
+            let mut clicked_node = None;
+            for node in graph.nodes.iter().rev() {
+                let dx = world_x - node.x;
+                let dy = world_y - node.y;
+                let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
+                if dx * dx + dy * dy <= hit_radius * hit_radius {
+                    clicked_node = Some(node.id);
+                    break;
+                }
+            }
+
+            if let Some(node_id) = clicked_node {
+                if creating_edge_from.is_some() {
+                    let source_id = creating_edge_from.take().unwrap();
+                    if source_id != node_id {
+                        graph.add_edge(source_id, node_id);
+                        graph.mark_changed()
+                    }
+                } else {
+                    graph.select_node(Some(node_id));
+                    node_dragging = Some(node_id);
+                    if let Some(node) = graph.nodes.iter().find(|n| n.id == node_id) {
+                        node_drag_offset = (node.x - world_x, node.y - world_y);
+                    }
+                }
+                camera_dragging = false;
+            } else if creating_edge_from.is_some() {
+                creating_edge_from = None;
+            } else if pending_node_type.is_some() {
+                let entity_type = pending_node_type.take().unwrap();
+                let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
+                graph.mark_changed();
+                graph.select_node(Some(id));
+                node_dragging = Some(id);
+                node_drag_offset = (0.0, 0.0);
+                camera_dragging = false;
+            } else {
+                // Check if clicking on an edge
+                let mut clicked_edge = None;
+                for edge in &graph.edges {
+                    let source = graph.nodes.iter().find(|n| n.id == edge.source_id);
+                    let target = graph.nodes.iter().find(|n| n.id == edge.target_id);
+                    if let (Some(s), Some(t)) = (source, target) {
+                        let dist = point_to_segment_distance(
+                            world_x, world_y,
+                            s.x, s.y,
+                            t.x, t.y,
+                        );
+                        let threshold = 10.0 / camera.zoom;
+                        if dist < threshold {
+                            clicked_edge = Some(edge.id);
+                            break;
+                        }
+                    }
+                }
+
+                if let Some(edge_id) = clicked_edge {
+                    graph.select_edge(Some(edge_id));
+                    camera_dragging = false;
+                } else {
+                    graph.clear_selection();
+                    camera_dragging = true;
+                    drag_start = (mouse_x, mouse_y);
+                    drag_start_camera = (camera.x, camera.y);
+                }
+            }
+        }
+
+        // Handle right-click for edge creation
+        if is_mouse_button_pressed(MouseButton::Right) && mouse_in_canvas && !mouse_on_panel {
+            let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+
+            let mut clicked_node = None;
+            for node in graph.nodes.iter().rev() {
+                let dx = world_x - node.x;
+                let dy = world_y - node.y;
+                let hit_radius = (node.radius * 1.5).max(15.0 / camera.zoom);
+                if dx * dx + dy * dy <= hit_radius * hit_radius {
+                    clicked_node = Some(node.id);
+                    break;
+                }
+            }
+
+            if let Some(node_id) = clicked_node {
+                creating_edge_from = Some(node_id);
+            } else {
+                creating_edge_from = None;
+            }
+        }
+
+        // Node dragging movement
+        if is_mouse_button_down(MouseButton::Left) {
+            if let Some(node_id) = node_dragging {
+                let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
+                if let Some(node) = graph.nodes.iter_mut().find(|n| n.id == node_id) {
+                    node.x = world_x + node_drag_offset.0;
+                    node.y = world_y + node_drag_offset.1;
+                    graph.mark_changed();
+                }
+            } else if camera_dragging {
+                let (mx, my) = mouse_position();
+                camera.x = drag_start_camera.0 + (mx - drag_start.0);
+                camera.y = drag_start_camera.1 + (my - drag_start.1);
+            }
+        } else {
+            node_dragging = None;
+            camera_dragging = false;
+        }
+
+        // Zoom with mouse wheel
+        let wheel = mouse_wheel();
+        if wheel.1 != 0.0 {
+            let zoom_factor = if wheel.1 > 0.0 { 1.1 } else { 0.9 };
+            let new_zoom = (camera.zoom * zoom_factor).clamp(0.4, 2.0);
+
+            let (mx, my) = mouse_position();
+            let (world_x, world_y) = camera.screen_to_world(mx, my);
+
+            camera.zoom = new_zoom;
+            let (new_mx, new_my) = camera.world_to_screen(world_x, world_y);
+
+            camera.x += mx - new_mx;
+            camera.y += my - new_my;
+        }
+
+        // Delete key
+        if is_key_pressed(KeyCode::Delete) {
+            if let Some(node_id) = graph.selected_node_id {
+                graph.remove_node(node_id);
+                graph.mark_changed();
+            } else if let Some(edge_id) = graph.selected_edge_id {
+                graph.remove_edge(edge_id);
+                graph.mark_changed();
+            }
+        }
+
+        if is_key_pressed(KeyCode::Escape) {
+            pending_node_type = None;
+            creating_edge_from = None;
+        }
+
+        egui_macroquad::draw();
+        next_frame().await;
+    }
+}
+
+fn get_entity_color(entity_type: &EntityType) -> (u8, u8, u8) {
+    match entity_type {
+        EntityType::PersonMale => COLOR_PERSON_MALE,
+        EntityType::PersonFemale => COLOR_PERSON_FEMALE,
+        EntityType::Organization => COLOR_ORGANIZATION,
+        EntityType::Email => COLOR_EMAIL,
+        EntityType::Phone => COLOR_PHONE,
+        EntityType::Document => COLOR_DOCUMENT,
+        EntityType::Database => COLOR_DATABASE,
+        EntityType::SocialMedia => COLOR_SOCIAL_MEDIA,
+        EntityType::Location => COLOR_LOCATION,
+        EntityType::Device => COLOR_DEVICE,
+    }
+}
+
+fn get_icon_name(entity_type: &EntityType) -> &str {
+    match entity_type {
+        EntityType::PersonMale => "PersonMale",
+        EntityType::PersonFemale => "PersonFemale",
+        EntityType::Organization => "Organization",
+        EntityType::Email => "Email",
+        EntityType::Phone => "Phone",
+        EntityType::Document => "Document",
+        EntityType::Database => "Database",
+        EntityType::SocialMedia => "SocialMedia",
+        EntityType::Location => "Location",
+        EntityType::Device => "Device",
+    }
+}
+
+/// Distance from point (px, py) to line segment (ax,ay)-(bx,by)
+fn point_to_segment_distance(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32) -> f32 {
+    let ab_x = bx - ax;
+    let ab_y = by - ay;
+    let ap_x = px - ax;
+    let ap_y = py - ay;
+
+    let ab_len_sq = ab_x * ab_x + ab_y * ab_y;
+    if ab_len_sq == 0.0 {
+        return (ap_x * ap_x + ap_y * ap_y).sqrt();
+    }
+
+    let t = ((ap_x * ab_x + ap_y * ab_y) / ab_len_sq).clamp(0.0, 1.0);
+    let closest_x = ax + t * ab_x;
+    let closest_y = ay + t * ab_y;
+
+    ((px - closest_x) * (px - closest_x) + (py - closest_y) * (py - closest_y)).sqrt()
+}
