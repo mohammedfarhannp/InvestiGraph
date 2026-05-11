@@ -1,6 +1,5 @@
 // src/ui/properties_panel.rs
 use crate::core::graph::Graph;
-use crate::core::node::EntityType;
 use crate::settings::*;
 use egui_macroquad::egui;
 
