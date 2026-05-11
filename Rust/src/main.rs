@@ -183,6 +183,26 @@ async fn main() {
                 let ay2 = end_y - arrow_len * (arrow_angle.cos() * ny - arrow_angle.sin() * nx);
                 draw_line(end_x, end_y, ax1, ay1, edge_thickness, rgb(edge_color));
                 draw_line(end_x, end_y, ax2, ay2, edge_thickness, rgb(edge_color));
+            
+                // Edge label
+                if !edge.label.is_empty() {
+                    let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
+                    let mid_x = (start_x + end_x) / 2.0;
+                    let mid_y = (start_y + end_y) / 2.0;
+                    // Offset perpendicular to the edge
+                    let offset_x = -ny * (font_size + 4.0);
+                    let offset_y = nx * (font_size + 4.0);
+                    let label_x = mid_x + offset_x;
+                    let label_y = mid_y + offset_y;
+                    let text_width = measure_text(&edge.label, None, font_size as u16, 1.0).width;
+                    draw_text(
+                        &edge.label,
+                        label_x - text_width / 2.0,
+                        label_y,
+                        font_size,
+                        rgb(GAINSBORO),
+                    );
+                }
             }
         }
 
