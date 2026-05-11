@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use egui_macroquad::egui;
 use crate::settings::{
     RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO, TRASH_ICON,
-    IN_THE_DARK, WESTCHESTER_GRAY, BRAINSTEM_GRAY, VULCAN, WHITE, egui_rgb,
+    IN_THE_DARK, BRAINSTEM_GRAY, VULCAN, MY_WHITE, egui_rgb,
 };
 use crate::core::node::EntityType;
 
@@ -58,7 +58,7 @@ impl Ribbon {
             weak_bg_fill: egui_rgb(IN_THE_DARK),
             bg_stroke: egui::Stroke::NONE,
             rounding: egui::Rounding::same(0.0),
-            fg_stroke: egui::Stroke::new(1.0, egui_rgb(WHITE)),
+            fg_stroke: egui::Stroke::new(1.0, egui_rgb(MY_WHITE)),
             expansion: 2.0,
         };
 
@@ -67,7 +67,7 @@ impl Ribbon {
             weak_bg_fill: egui_rgb(WATER_OUZEL),
             bg_stroke: egui::Stroke::new(1.0, egui_rgb(BRAINSTEM_GRAY)),
             rounding: egui::Rounding::same(0.0),
-            fg_stroke: egui::Stroke::new(1.0, egui_rgb(WHITE)),
+            fg_stroke: egui::Stroke::new(1.0, egui_rgb(MY_WHITE)),
             expansion: 2.0,
         };
 
@@ -138,7 +138,9 @@ impl Ribbon {
                     let help_btn = egui::Button::new("Help")
                         .min_size(egui::Vec2::new(55.0, 38.0));
                     if ui.add(help_btn).clicked() {
-                        println!("Help clicked!");
+                        if let Err(e) = open::that("https://github.com/mohammedfarhannp/InvestiGraph/tree/master/README.md") {
+                            eprintln!("Failed to open help link: {}", e);
+                        }
                     }
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
