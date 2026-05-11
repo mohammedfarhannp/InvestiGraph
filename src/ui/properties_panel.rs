@@ -40,76 +40,75 @@ impl PropertiesPanel {
             .show(ctx, |ui| {
                 ui.spacing_mut().item_spacing = egui::Vec2::new(0.0, 8.0);
 
-                if let Some(node_id) = graph.selected_node_id {
-                    if let Some(node) = graph.get_selected_node_mut() {
-                        // Entity type header
-                        ui.heading(
-                            egui::RichText::new(node.entity_type.display_name())
-                                .size(16.0)
-                                .color(egui::Color32::from_rgb(220, 220, 220))
-                        );
-                        ui.separator();
+                
+                if let Some(node) = graph.get_selected_node_mut() {
+                    // Entity type header
+                    ui.heading(
+                        egui::RichText::new(node.entity_type.display_name())
+                            .size(16.0)
+                            .color(egui::Color32::from_rgb(220, 220, 220))
+                    );
+                    ui.separator();
 
-                        // Label field
-                        ui.label(
-                            egui::RichText::new("Label")
-                                .size(12.0)
-                                .color(egui::Color32::from_rgb(180, 180, 180))
-                        );
-                        ui.add(
-                            egui::TextEdit::singleline(&mut node.label)
-                                .desired_width(self.width - 20.0)
-                        );
+                    // Label field
+                    ui.label(
+                        egui::RichText::new("Label")
+                            .size(12.0)
+                            .color(egui::Color32::from_rgb(180, 180, 180))
+                    );
+                    ui.add(
+                        egui::TextEdit::singleline(&mut node.label)
+                            .desired_width(self.width - 20.0)
+                    );
 
-                        ui.add_space(12.0);
+                    ui.add_space(12.0);
 
-                        // Notes field
-                        ui.label(
-                            egui::RichText::new("Notes")
-                                .size(12.0)
-                                .color(egui::Color32::from_rgb(180, 180, 180))
-                        );
-                        ui.add(
-                            egui::TextEdit::multiline(&mut node.notes)
-                                .desired_width(self.width - 20.0)
-                                .desired_rows(12)
-                        );
-                    }
-                } else if let Some(edge_id) = graph.selected_edge_id {
-                    if let Some(edge) = graph.get_selected_edge_mut() {
-                        // Edge header
-                        ui.heading(
-                            egui::RichText::new("Edge")
-                                .size(16.0)
-                                .color(egui::Color32::from_rgb(220, 220, 220))
-                        );
-                        ui.separator();
+                    // Notes field
+                    ui.label(
+                        egui::RichText::new("Notes")
+                            .size(12.0)
+                            .color(egui::Color32::from_rgb(180, 180, 180))
+                    );
+                    ui.add(
+                        egui::TextEdit::multiline(&mut node.notes)
+                            .desired_width(self.width - 20.0)
+                            .desired_rows(12)
+                    );
+                }
+                
+                if let Some(edge) = graph.get_selected_edge_mut() {
+                    // Edge header
+                    ui.heading(
+                        egui::RichText::new("Edge")
+                            .size(16.0)
+                            .color(egui::Color32::from_rgb(220, 220, 220))
+                    );
+                    ui.separator();
 
-                        // Label field
-                        ui.label(
-                            egui::RichText::new("Label")
-                                .size(12.0)
-                                .color(egui::Color32::from_rgb(180, 180, 180))
-                        );
-                        ui.add(
-                            egui::TextEdit::singleline(&mut edge.label)
-                                .desired_width(self.width - 20.0)
-                        );
+                    // Label field
+                    ui.label(
+                        egui::RichText::new("Label")
+                            .size(12.0)
+                            .color(egui::Color32::from_rgb(180, 180, 180))
+                    );
+                    ui.add(
+                        egui::TextEdit::singleline(&mut edge.label)
+                            .desired_width(self.width - 20.0)
+                    );
 
-                        ui.add_space(12.0);
+                    ui.add_space(12.0);
 
-                        // Notes field
-                        ui.label(
-                            egui::RichText::new("Notes")
-                                .size(12.0)
-                                .color(egui::Color32::from_rgb(180, 180, 180))
-                        );
-                        ui.add(
-                            egui::TextEdit::multiline(&mut edge.notes)
-                                .desired_width(self.width - 20.0)
-                                .desired_rows(12)
-                        );
-                    }
+                    // Notes field
+                    ui.label(
+                        egui::RichText::new("Notes")
+                            .size(12.0)
+                            .color(egui::Color32::from_rgb(180, 180, 180))
+                    );
+                    ui.add(
+                        egui::TextEdit::multiline(&mut edge.notes)
+                            .desired_width(self.width - 20.0)
+                            .desired_rows(12)
+                    );
                 }
             });
     }
