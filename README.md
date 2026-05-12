@@ -8,6 +8,8 @@ A investigation graph tool for mapping relationships between entities. rebuilt w
 
 InvestiGraph allows investigators, analysts, and OSINT practitioners to visually map connections between people, organizations, devices, and other entities.
 
+![InvestiGraph in Action](https://github.com/mohammedfarhannp/InvestiGraph/blob/master/assets/screenshots/Screenshot%201.png)
+
 ## Features
 
 - **10 Entity Types**: Person (Male/Female), Organization, Email, Phone, Document, Database, Social Media, Location, Device
