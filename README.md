@@ -109,3 +109,7 @@ GNU General Public License v3.0
 - [x] Windows
 - [ ] Linux
 - [ ] macOS
+
+## Issues & Bug Reports
+
+Found a bug or have a feature request? Please [open an issue](https://github.com/mohammedfarhannp/InvestiGraph/issues) on GitHub.
