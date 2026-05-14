@@ -38,20 +38,6 @@ pub const RIBBON_BG : (u8, u8, u8) = (45, 45, 50);
 pub const RIBBON_BORDER: (u8, u8, u8) = (80, 80, 85);
 pub const BUTTON_TEXT: (u8, u8, u8) = (220, 220, 220);
 
-// Icon Paths
-pub const ICON_PATH: &str = "assets/icons/";
-pub const DATABASE_ICON: &str = "assets/icons/Database.png";
-pub const DEVICE_ICON: &str = "assets/icons/Device.png";
-pub const DOCUMENT_ICON: &str = "assets/icons/Document.png";
-pub const EMAIL_ICON: &str = "assets/icons/Email.png";
-pub const LOCATION_ICON: &str = "assets/icons/Location.png";
-pub const ORGANIZATION_ICON: &str = "assets/icons/Organization.png";
-pub const PHONE_ICON: &str = "assets/icons/Phone.png";
-pub const SOCIAL_MEDIA_ICON: &str = "assets/icons/Social_Media.png";
-pub const PERSON_MALE_ICON: &str = "assets/icons/male.png";
-pub const PERSON_FEMALE_ICON: &str = "assets/icons/female.png";
-pub const TRASH_ICON: &str = "assets/icons/trash.png";
-
 // Named Colors (RGB u8)
 pub const BASTILLE: (u8, u8, u8) = (45, 45, 50);
 pub const WATER_OUZEL: (u8, u8, u8) = (80, 80, 85);
