@@ -16,7 +16,28 @@ use utils::assets::AssetManager;
 
 use settings::*;
 
-#[macroquad::main("InvestiGraph")]
+
+include!(concat!(env!("OUT_DIR"), "/icon.rs"));
+
+fn window_conf() -> macroquad::prelude::Conf {
+    // We keep the icon variable if you use it for internal UI (like egui),
+    // but we do NOT pass it to the window configuration.
+    let icon = miniquad::conf::Icon {
+        small: ICON_SMALL,   // 16x16
+        medium: ICON_MEDIUM, // 32x32
+        big: ICON_BIG,       // 64x64
+    };
+
+    macroquad::prelude::Conf {
+        window_title: "InvestiGraph".to_string(),
+        icon: Some(icon), // <--- Change this to None
+        high_dpi: true,
+        ..Default::default()
+    }
+}
+
+
+#[macroquad::main(window_conf)]
 async fn main() {
     request_new_screen_size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
