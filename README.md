@@ -71,33 +71,71 @@ cargo run
 
 ## Dependencies
 
-- [macroquad](https://crates.io/crates/macroquad) — Rendering
-- [egui](https://crates.io/crates/egui) — UI framework
+- [macroquad](https://crates.io/crates/macroquad) — Rendering engine
+- [egui](https://crates.io/crates/egui) — Immediate mode GUI framework
 - [egui-macroquad](https://crates.io/crates/egui-macroquad) — egui + macroquad integration
-- [serde](https://crates.io/crates/serde) + [serde_json](https://crates.io/crates/serde_json) — Serialization
+- [serde](https://crates.io/crates/serde) + [serde_json](https://crates.io/crates/serde_json) — Graph serialization
 - [rfd](https://crates.io/crates/rfd) — Native file dialogs
-- [image](https://crates.io/crates/image) — Icon loading
+- [open](https://crates.io/crates/open) — Open URLs in browser
+- [image](https://crates.io/crates/image) — Icon decoding & processing
+
+### Build Dependencies
+- [image](https://crates.io/crates/image) — Asset embedding at compile time
+- [embed-resource](https://crates.io/crates/embed-resource) — Windows resource compilation
 
 ## Project Structure
 
 ```
-src/
-├── main.rs              # Entry point, render loop, input handling
-├── settings.rs          # Constants, colors, paths
-├── core/
-│   ├── node.rs          # Node struct, entity types
-│   ├── edge.rs          # Edge struct
-│   ├── graph.rs         # Graph state management
-│   └── mod.rs
-├── ui/
-│   ├── ribbon.rs        # Top toolbar (File, Add Node, Help, Trash)
-│   ├── properties_panel.rs  # Right-side panel for editing
-│   ├── camera.rs        # Pan/zoom camera
-│   └── mod.rs
-└── utils/
-    ├── assets.rs        # Icon texture loading
-    ├── file_io.rs       # Save/Load operations
-    └── mod.rs
+InvestiGraph/
+│
+├── src/
+│   ├── main.rs              # Entry point, render loop, input handling
+│   ├── settings.rs          # Constants, colors
+│   ├── core/
+│   │   ├── node.rs          # Node struct, entity types
+│   │   ├── edge.rs          # Edge struct
+│   │   ├── graph.rs         # Graph state management
+│   │   └── mod.rs
+│   ├── ui/
+│   │   ├── ribbon.rs        # Top toolbar (File, Add Node, Help, Trash)
+│   │   ├── properties_panel.rs  # Right-side panel for editing
+│   │   ├── camera.rs        # Pan/zoom camera
+│   │   └── mod.rs
+│   └── utils/
+│       ├── assets.rs        # AssetManager - embedded icon textures
+│       ├── file_io.rs       # Save/Load operations
+│       └── mod.rs
+│
+├── assets/
+│   ├── icons/
+│   │   ├── Database.png
+│   │   ├── Device.png
+│   │   ├── Document.png
+│   │   ├── Email.png
+│   │   ├── female.png
+│   │   ├── Location.png
+│   │   ├── male.png
+│   │   ├── Organization.png
+│   │   ├── Phone.png
+│   │   ├── Social_Media.png
+│   │   └── trash.png
+│   ├── logo/
+│   │   ├── icon.ico
+│   │   ├── Icon.png
+│   │   ├── Logo (Transparent).png
+│   │   ├── Logo.png
+│   │   └── main.ico
+│   └── screenshots/
+│       └── Screenshot 1.png
+│
+├── .cargo/
+│   └── config.toml          # Static CRT linking for portable builds
+│
+├── app.rc                   # Windows resource file (icon embedding)
+├── build.rs                 # Build script - embeds assets at compile time
+├── Cargo.toml               # Project manifest & dependencies
+├── LICENSE
+└── README.md
 ```
 
 ## License
