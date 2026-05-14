@@ -1,4 +1,5 @@
 // src/main.rs
+#![windows_subsystem = "windows"]
 use macroquad::prelude::*;
 
 mod core;
@@ -14,10 +15,11 @@ use ui::properties_panel::PropertiesPanel;
 use ui::ribbon::FileAction;
 use utils::assets::AssetManager;
 
+use crate::utils::assets::ICON_SMALL;
+use crate::utils::assets::ICON_MEDIUM;
+use crate::utils::assets::ICON_BIG;
+
 use settings::*;
-
-
-include!(concat!(env!("OUT_DIR"), "/icon.rs"));
 
 fn window_conf() -> macroquad::prelude::Conf {
     // We keep the icon variable if you use it for internal UI (like egui),
@@ -63,7 +65,7 @@ async fn main() {
     let mut properties_panel = PropertiesPanel::new();
 
     // Asset Manager
-    let asset_manager = AssetManager::new().await;
+    let asset_manager = AssetManager::new();
 
     // Main Loop
     loop {
