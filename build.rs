@@ -17,7 +17,7 @@ fn main() {
     let mut f = fs::File::create(&dest_path).unwrap();
 
     // --- Application icon arrays (for macroquad window icon fallback) ---
-    let icon_img = image::open("assets/icons/icon.ico")
+    let icon_img = image::open("assets/logo/icon.ico")
         .expect("Failed to load icon.ico");
     
     let small = image::imageops::resize(&icon_img, 16, 16, image::imageops::FilterType::Lanczos3);
@@ -50,7 +50,7 @@ fn main() {
     }
 
     // Rerun triggers
-    println!("cargo:rerun-if-changed=assets/icons/icon.ico");
+    println!("cargo:rerun-if-changed=assets/logo/icon.ico");
     for (_, path) in &png_icons {
         println!("cargo:rerun-if-changed={}", path);
     }
