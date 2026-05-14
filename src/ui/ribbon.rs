@@ -2,10 +2,13 @@
 use macroquad::prelude::*;
 use egui_macroquad::egui;
 use crate::settings::{
-    RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO, TRASH_ICON,
+    RIBBON_HEIGHT, BASTILLE, WATER_OUZEL, GAINSBORO,
     IN_THE_DARK, BRAINSTEM_GRAY, VULCAN, MY_WHITE, egui_rgb,
 };
 use crate::core::node::EntityType;
+use crate::utils::assets::AssetManager;
+use image;
+
 
 #[derive(Clone, PartialEq)]
 pub enum FileAction {
@@ -144,21 +147,19 @@ impl Ribbon {
                     }
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        let img_data = macroquad::prelude::Image::from_file_with_format(
-                            &std::fs::read(TRASH_ICON).expect("Failed to read trash icon"),
-                            Some(image::ImageFormat::Png),
-                        );
-                        let raw_bytes: Vec<u8> = img_data
-                            .get_image_data()
-                            .iter()
-                            .flat_map(|pixel| pixel.to_vec())
-                            .collect();
+                        
+                        
+                        let trash_bytes = AssetManager::trash_icon_bytes();
+                        let img_data = image::load_from_memory(trash_bytes)
+                            .expect("Failed to decode embedded trash icon")
+                            .to_rgba8();
+                        let (w, h) = img_data.dimensions();
                         let color_img = egui::ColorImage::from_rgba_unmultiplied(
-                            [img_data.width() as usize, img_data.height() as usize],
-                            &raw_bytes,
+                            [w as usize, h as usize],
+                            img_data.as_raw(),
                         );
                         let trash_texture = ctx.load_texture("trash", color_img, egui::TextureOptions::default());
-                    
+
                         let trash_response = ui.add(
                             egui::ImageButton::new(trash_texture.id(), egui::Vec2::new(15.0, 15.0))
                         );
