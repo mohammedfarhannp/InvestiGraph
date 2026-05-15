@@ -1,10 +1,25 @@
 # InvestiGraph
 
-![LOGO TRANSPARENT](https://github.com/mohammedfarhannp/InvestiGraph/blob/master/assets/logo/Logo%20(Transparent).png)
-
 A investigation graph tool for mapping relationships between entities. rebuilt with Rust that which is orginally built with python.
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+
+## Controls
+
+| Action | Control |
+|--------|---------|
+| Pan canvas | Left-click + drag (empty space) |
+| Zoom | Scroll wheel (0.4x–2.0x) |
+| Select node/edge | Left-click |
+| Move node | Click + drag selected node |
+| Create edge | Right-click source node → left-click target node |
+| Delete selected | Delete key or trash icon |
+| Add node | Add Node dropdown → choose type → click canvas |
+| Save | File → Save |
+| Load | File → Load |
+| New | File → New |
+| Cancel edge/placement | Escape |
+
 
 ## Overview
 
@@ -21,21 +36,6 @@ InvestiGraph allows investigators, analysts, and OSINT practitioners to visually
 - **Unsaved Changes Tracking**: Prompts before discarding work
 - **Zoom-Responsive**: Nodes, icons, labels, edges, and arrowheads scale with zoom
 
-## Controls
-
-| Action | Control |
-|--------|---------|
-| Pan canvas | Left-click + drag (empty space) |
-| Zoom | Scroll wheel (0.4x–2.0x) |
-| Select node/edge | Left-click |
-| Move node | Click + drag selected node |
-| Create edge | Right-click source node → right-click target node |
-| Delete selected | Delete key or trash icon |
-| Add node | Add Node dropdown → choose type → click canvas |
-| Save | File → Save |
-| Load | File → Load |
-| New | File → New |
-| Cancel edge/placement | Escape |
 
 ## Entity Colors
 
