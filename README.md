@@ -1,5 +1,7 @@
 # InvestiGraph
 
+![LOGO TRANSPARENT](https://github.com/mohammedfarhannp/InvestiGraph/blob/master/assets/logo/Logo%20(Transparent).png)
+
 A investigation graph tool for mapping relationships between entities. rebuilt with Rust that which is orginally built with python.
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
