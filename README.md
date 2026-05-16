@@ -147,7 +147,7 @@ GNU General Public License v3.0
 ## Platform Support
 
 - [x] Windows
-- [ ] Linux
+- [x] Linux
 - [ ] macOS
 
 ## Issues & Bug Reports
