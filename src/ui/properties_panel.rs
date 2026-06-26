@@ -14,10 +14,12 @@ impl PropertiesPanel {
         }
     }
 
-    pub fn draw(&mut self, graph: &mut Graph, ctx: &egui::Context) {
+    pub fn draw(&mut self, graph: &mut Graph, ctx: &egui::Context) -> bool {
+        let mut changed = false;
+
         // Only show if something is selected
         if graph.selected_node_id.is_none() && graph.selected_edge_id.is_none() {
-            return;
+            return changed;
         }
 
         let screen_width = ctx.input(|i| i.screen_rect.width());
@@ -56,10 +58,10 @@ impl PropertiesPanel {
                             .size(12.0)
                             .color(egui::Color32::from_rgb(180, 180, 180))
                     );
-                    ui.add(
+                    changed |= ui.add(
                         egui::TextEdit::singleline(&mut node.label)
                             .desired_width(self.width - 20.0)
-                    );
+                    ).changed();
 
                     ui.add_space(12.0);
 
@@ -69,11 +71,11 @@ impl PropertiesPanel {
                             .size(12.0)
                             .color(egui::Color32::from_rgb(180, 180, 180))
                     );
-                    ui.add(
+                    changed |= ui.add(
                         egui::TextEdit::multiline(&mut node.notes)
                             .desired_width(self.width - 20.0)
                             .desired_rows(12)
-                    );
+                    ).changed();
                 }
                 
                 if let Some(edge) = graph.get_selected_edge_mut() {
@@ -91,10 +93,10 @@ impl PropertiesPanel {
                             .size(12.0)
                             .color(egui::Color32::from_rgb(180, 180, 180))
                     );
-                    ui.add(
+                    changed |= ui.add(
                         egui::TextEdit::singleline(&mut edge.label)
                             .desired_width(self.width - 20.0)
-                    );
+                    ).changed();
 
                     ui.add_space(12.0);
 
@@ -104,12 +106,14 @@ impl PropertiesPanel {
                             .size(12.0)
                             .color(egui::Color32::from_rgb(180, 180, 180))
                     );
-                    ui.add(
+                    changed |= ui.add(
                         egui::TextEdit::multiline(&mut edge.notes)
                             .desired_width(self.width - 20.0)
                             .desired_rows(12)
-                    );
+                    ).changed();
                 }
             });
+
+        changed
     }
 }
