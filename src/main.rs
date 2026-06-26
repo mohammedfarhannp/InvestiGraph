@@ -8,16 +8,17 @@ mod ui;
 mod utils;
 
 use core::graph::Graph;
+use core::history::GraphHistory;
 use core::node::EntityType;
 use ui::camera::Camera;
-use ui::ribbon::Ribbon;
 use ui::properties_panel::PropertiesPanel;
 use ui::ribbon::FileAction;
+use ui::ribbon::Ribbon;
 use utils::assets::AssetManager;
 
-use crate::utils::assets::ICON_SMALL;
-use crate::utils::assets::ICON_MEDIUM;
 use crate::utils::assets::ICON_BIG;
+use crate::utils::assets::ICON_MEDIUM;
+use crate::utils::assets::ICON_SMALL;
 
 use settings::*;
 
@@ -38,13 +39,13 @@ fn window_conf() -> macroquad::prelude::Conf {
     }
 }
 
-
 #[macroquad::main(window_conf)]
 async fn main() {
     request_new_screen_size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Graph
     let mut graph = Graph::new();
+    let mut history = GraphHistory::new();
     let mut pending_node_type: Option<EntityType> = None;
     let mut creating_edge_from: Option<u64> = None;
 
@@ -57,6 +58,8 @@ async fn main() {
     // Node dragging
     let mut node_dragging: Option<u64> = None;
     let mut node_drag_offset = (0.0, 0.0);
+    let mut node_drag_start_graph: Option<Graph> = None;
+    let mut node_drag_moved = false;
 
     // Ribbon
     let mut ribbon = Ribbon::new();
@@ -71,10 +74,36 @@ async fn main() {
     loop {
         clear_background(rgb(BACKGROUND_COLOR));
 
+        let graph_before_properties = graph.clone();
+        let mut properties_changed = false;
         egui_macroquad::ui(|ctx| {
             ribbon.draw(ctx);
-            properties_panel.draw(&mut graph, ctx);
+            properties_changed = properties_panel.draw(&mut graph, ctx);
         });
+        if properties_changed {
+            history.record(&graph_before_properties);
+            graph.mark_changed();
+        }
+
+        let ctrl_down = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
+        if ctrl_down && is_key_pressed(KeyCode::Z) {
+            if history.undo(&mut graph) {
+                pending_node_type = None;
+                creating_edge_from = None;
+                node_dragging = None;
+                node_drag_start_graph = None;
+                node_drag_moved = false;
+            }
+        }
+        if ctrl_down && is_key_pressed(KeyCode::Y) {
+            if history.redo(&mut graph) {
+                pending_node_type = None;
+                creating_edge_from = None;
+                node_dragging = None;
+                node_drag_start_graph = None;
+                node_drag_moved = false;
+            }
+        }
 
         // --- Handle ribbon actions ---
         if let Some(ref entity_type) = ribbon.selected_entity_type {
@@ -92,23 +121,20 @@ async fn main() {
                             // Don't proceed — skip to next frame
                             // We can't use continue in a match, so set action to None and use a flag
                         } else {
+                            history.record(&graph);
                             graph = Graph::new();
                             pending_node_type = None;
                             creating_edge_from = None;
                         }
                     } else {
+                        history.record(&graph);
                         graph = Graph::new();
                         pending_node_type = None;
                         creating_edge_from = None;
                     }
                 }
                 FileAction::Save => {
-                    utils::file_io::save_graph(
-                        &graph,
-                        camera.x,
-                        camera.y,
-                        camera.zoom,
-                    );
+                    utils::file_io::save_graph(&graph, camera.x, camera.y, camera.zoom);
                     graph.unsaved_changes = false;
                 }
                 FileAction::Load => {
@@ -118,6 +144,7 @@ async fn main() {
                     }
                     if should_load {
                         if let Some((loaded_graph, cx, cy, cz)) = utils::file_io::load_graph() {
+                            history.record(&graph);
                             graph = loaded_graph;
                             camera.x = cx;
                             camera.y = cy;
@@ -133,9 +160,11 @@ async fn main() {
 
         if ribbon.pending_delete {
             if let Some(node_id) = graph.selected_node_id {
+                history.record(&graph);
                 graph.remove_node(node_id);
                 graph.mark_changed();
             } else if let Some(edge_id) = graph.selected_edge_id {
+                history.record(&graph);
                 graph.remove_edge(edge_id);
                 graph.mark_changed();
             }
@@ -195,7 +224,14 @@ async fn main() {
                     GAINSBORO
                 };
                 let edge_thickness = (2.0 * camera.zoom).max(1.0);
-                draw_line(start_x, start_y, end_x, end_y, edge_thickness, rgb(edge_color));
+                draw_line(
+                    start_x,
+                    start_y,
+                    end_x,
+                    end_y,
+                    edge_thickness,
+                    rgb(edge_color),
+                );
 
                 // Arrowhead at target circumference
                 let arrow_len = (10.0 * camera.zoom).max(5.0);
@@ -206,7 +242,7 @@ async fn main() {
                 let ay2 = end_y - arrow_len * (arrow_angle.cos() * ny - arrow_angle.sin() * nx);
                 draw_line(end_x, end_y, ax1, ay1, edge_thickness, rgb(edge_color));
                 draw_line(end_x, end_y, ax2, ay2, edge_thickness, rgb(edge_color));
-            
+
                 // Edge label
                 if !edge.label.is_empty() {
                     let font_size = (DEFAULT_FONT_SIZE * camera.zoom).max(8.0);
@@ -296,8 +332,8 @@ async fn main() {
         let mouse_in_canvas = mouse_y > RIBBON_HEIGHT;
         let panel_width = 280.0;
         let properties_bottom = RIBBON_HEIGHT + 320.0;
-        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width 
-            && mouse_y > RIBBON_HEIGHT 
+        let mouse_on_panel = mouse_x > SCREEN_WIDTH - panel_width
+            && mouse_y > RIBBON_HEIGHT
             && mouse_y < properties_bottom;
 
         // Handle left-click
@@ -320,12 +356,15 @@ async fn main() {
                 if creating_edge_from.is_some() {
                     let source_id = creating_edge_from.take().unwrap();
                     if source_id != node_id {
+                        history.record(&graph);
                         graph.add_edge(source_id, node_id);
                         graph.mark_changed()
                     }
                 } else {
                     graph.select_node(Some(node_id));
                     node_dragging = Some(node_id);
+                    node_drag_start_graph = Some(graph.clone());
+                    node_drag_moved = false;
                     if let Some(node) = graph.nodes.iter().find(|n| n.id == node_id) {
                         node_drag_offset = (node.x - world_x, node.y - world_y);
                     }
@@ -335,6 +374,7 @@ async fn main() {
                 creating_edge_from = None;
             } else if pending_node_type.is_some() {
                 let entity_type = pending_node_type.take().unwrap();
+                history.record(&graph);
                 let id = graph.add_node(entity_type, world_x, world_y, DEFAULT_NODE_RADIUS);
                 graph.mark_changed();
                 graph.select_node(Some(id));
@@ -348,11 +388,7 @@ async fn main() {
                     let source = graph.nodes.iter().find(|n| n.id == edge.source_id);
                     let target = graph.nodes.iter().find(|n| n.id == edge.target_id);
                     if let (Some(s), Some(t)) = (source, target) {
-                        let dist = point_to_segment_distance(
-                            world_x, world_y,
-                            s.x, s.y,
-                            t.x, t.y,
-                        );
+                        let dist = point_to_segment_distance(world_x, world_y, s.x, s.y, t.x, t.y);
                         let threshold = 10.0 / camera.zoom;
                         if dist < threshold {
                             clicked_edge = Some(edge.id);
@@ -400,9 +436,14 @@ async fn main() {
             if let Some(node_id) = node_dragging {
                 let (world_x, world_y) = camera.screen_to_world(mouse_x, mouse_y);
                 if let Some(node) = graph.nodes.iter_mut().find(|n| n.id == node_id) {
-                    node.x = world_x + node_drag_offset.0;
-                    node.y = world_y + node_drag_offset.1;
-                    graph.mark_changed();
+                    let next_x = world_x + node_drag_offset.0;
+                    let next_y = world_y + node_drag_offset.1;
+                    if node.x != next_x || node.y != next_y {
+                        node.x = next_x;
+                        node.y = next_y;
+                        node_drag_moved = true;
+                        graph.mark_changed();
+                    }
                 }
             } else if camera_dragging {
                 let (mx, my) = mouse_position();
@@ -410,6 +451,14 @@ async fn main() {
                 camera.y = drag_start_camera.1 + (my - drag_start.1);
             }
         } else {
+            if node_drag_moved {
+                if let Some(start_graph) = node_drag_start_graph.take() {
+                    history.record(&start_graph);
+                }
+            } else {
+                node_drag_start_graph = None;
+            }
+            node_drag_moved = false;
             node_dragging = None;
             camera_dragging = false;
         }
@@ -433,9 +482,11 @@ async fn main() {
         // Delete key
         if is_key_pressed(KeyCode::Delete) {
             if let Some(node_id) = graph.selected_node_id {
+                history.record(&graph);
                 graph.remove_node(node_id);
                 graph.mark_changed();
             } else if let Some(edge_id) = graph.selected_edge_id {
+                history.record(&graph);
                 graph.remove_edge(edge_id);
                 graph.mark_changed();
             }
